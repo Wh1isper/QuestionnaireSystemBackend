@@ -1,3 +1,7 @@
+# 如果你连ORM都想看，那么代码一定出了bug
+# 或者你懒到不想看DOC
+# See doc https://github.com/Wh1isper/QuestionnaireSystemDoc
+
 from sqlalchemy import create_engine
 from db_config import *
 
