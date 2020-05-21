@@ -14,19 +14,14 @@ from db_config import *
 #                                                                                         port=PORT),
 #     pool_recycle=3600)
 #
-# from sqlalchemy.orm import sessionmaker
-#
+from sqlalchemy.orm import sessionmaker
+
 # Session = sessionmaker(engine)
 
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, ForeignKey, MetaData, Table
 from sqlalchemy import (BigInteger, SmallInteger, DateTime, VARCHAR, CHAR, Text)
-from aiomysql.sa import create_engine
 
-
-async def get_engine():
-    engine = await create_engine(user=USERNAME, db=DBNAME, host=HOST, password=PASSWORD)
-    return engine
 
 
 Meta = MetaData()
