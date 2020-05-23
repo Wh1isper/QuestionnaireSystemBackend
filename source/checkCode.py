@@ -1,15 +1,12 @@
-# https://www.cnblogs.com/zknublx/p/8021599.html
 # coding:utf-8
+
+# 登录验证码生成
+# https://www.cnblogs.com/zknublx/p/8021599.html
 
 import random
 from PIL import Image, ImageDraw, ImageFont, ImageFilter
 from typing import Text, Tuple, List
-
-_letter_cases = "abcdefghjkmnpqrstuvwxy"  # 小写字母，去除可能干扰的i，l，o，z
-_upper_cases = _letter_cases.upper()  # 大写字母
-_numbers = ''.join(map(str, range(3, 10)))  # 数字
-init_chars = ''.join((_letter_cases, _upper_cases, _numbers))
-
+from config import *
 
 def create_validate_code(size: Tuple[int, int] = (120, 30),
                          chars: List = init_chars,

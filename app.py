@@ -1,6 +1,7 @@
 import sys
+
 sys.path.append('./source')
-sys.path.append('/APIHandler')
+sys.path.append('./APIHandler')
 sys.path.append('./ORM')
 
 import tornado.ioloop
@@ -8,6 +9,14 @@ import tornado.web
 
 from CheckcodeHandler import CheckcodeHandler
 from LoginHandler import LoginHandler
+from config import *
+
+
+def load_handlers(name):
+    """Load the (URL pattern, handler) tuples for each component."""
+    mod = __import__(name, fromlist=['default_handlers'])
+    return mod.default_handlers
+
 
 class MainHandler(tornado.web.RequestHandler):
     def get(self):
@@ -18,17 +27,14 @@ class MainHandler(tornado.web.RequestHandler):
 
 def make_app():
     settings = {
-        "cookie_secret": "this is not a secret cookie",
+        "cookie_secret": COOKIE_SECRET,
         "xsrf_cookies": False,
     }
-    PWD_SAULT = "this is not a password sault"
-    return tornado.web.Application([
-        (r"/", MainHandler),
-        (r"/api/v1/checkCode/", CheckcodeHandler),
-        (r"/api/v1/login/",LoginHandler,dict(pwd_sault=PWD_SAULT))
-    ],
-        **settings,
-    )
+    handlers = []
+    handlers.extend(load_handlers('APIHandler.CheckcodeHandler'))
+    handlers.extend(load_handlers('APIHandler.LoginHandler'))
+    handlers.extend(load_handlers('APIHandler.RegisterHandler'))
+    return tornado.web.Application(handlers, **settings)
 
 
 if __name__ == "__main__":
