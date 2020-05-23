@@ -19,6 +19,10 @@ class CheckcodeHandler(BaseHandler):
 
 
 class EmailCheckcodeHandler(BaseHandler):
+    def initialize(self):
+        BaseHandler.initialize(self)
+        self.SEND_CHECK_CODE_FAIL = 1
+
     async def post(self, *args, **kwargs):
         # 向邮箱发送验证码，set-cookie:email_check_code为验证码内容
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%82%AE%E7%AE%B1%E9%AA%8C%E8%AF%81%E7%A0%81api
@@ -31,7 +35,7 @@ class EmailCheckcodeHandler(BaseHandler):
             return self.raise_HTTP_error(401, self.MISSING_DATA)
         email_check_code = await emailCheckCode.send_email_checkcode(email)
         if not email_check_code:
-            return self.raise_HTTP_error(401, self.MISSING_DATA)
+            return self.raise_HTTP_error(401, self.SEND_CHECK_CODE_FAIL)
         self.set_secure_cookie('email_check_code', email_check_code)
         self.set_status(200)
 
