@@ -31,8 +31,9 @@ class BaseHandler(RequestHandler):
         log_dict = {
             'ip': self.request.remote_ip,
             'method': self.request.method,
-            'headers': self.request.headers,
-            'body': self.request.body,
+            'Handler': self.__class__.__name__,
+            'cookie': self.request.headers.get('Cookie'),
+            'body': str(self.request.body,encoding='utf-8'),
         }
         print(json.dumps(log_dict))
 
