@@ -19,3 +19,5 @@ EMAIL_ACCOUNT = 'qs_test@163.com'
 AUTH_CODE = 'HCNWVDYOBDPTBYHN'
 SMTP_SERVERSE = 'smtp.163.com'
 SERVERS_PORT = 25
+# 密码强度正则
+PASSWORD_REG = r'^[A-Za-z0-9]+$'

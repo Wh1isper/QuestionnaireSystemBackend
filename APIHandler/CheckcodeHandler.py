@@ -29,13 +29,13 @@ class EmailCheckcodeHandler(BaseHandler):
         try:
             json_data: dict = json.loads(self.request.body.decode('utf-8'))
         except json.decoder.JSONDecodeError:
-            return self.raise_HTTP_error(401, self.MISSING_DATA)
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         email = json_data.get('email')
         if not email:
-            return self.raise_HTTP_error(401, self.MISSING_DATA)
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         email_check_code = await emailCheckCode.send_email_checkcode(email)
         if not email_check_code:
-            return self.raise_HTTP_error(401, self.SEND_CHECK_CODE_FAIL)
+            return self.raise_HTTP_error(403, self.SEND_CHECK_CODE_FAIL)
         self.set_secure_cookie('email_check_code', email_check_code)
         self.set_status(200)
 

@@ -20,7 +20,7 @@ class LoginHandler(BaseHandler):
         try:
             json_data: dict = json.loads(self.request.body.decode('utf-8'))
         except json.decoder.JSONDecodeError:
-            return self.raise_HTTP_error(401, self.MISSING_DATA)
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         email = json_data.get('email')
         pwd = json_data.get('pwd')
         check_code = json_data.get('check_code')
@@ -73,9 +73,10 @@ class LoginHandler(BaseHandler):
             await conn.execute(
                 UserLoginRecordTable.update().
                     where(UserLoginRecordTable.c.U_ID == user_id).
-                    values(U_Login_Date=datetime.date.today(), U_Login_IP=ip)
+                    values(U_Login_Date=datetime.datetime.today(), U_Login_IP=ip)
             )
-            # 非事务时可直接调用commit
+            # aiomysql bug .commit()方法不存在
+            # 这里直接调用实现即可 or conn.execute('commit')
             await conn._commit_impl()
 
 

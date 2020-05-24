@@ -44,7 +44,7 @@ async def login_record(user_id=1):
         await conn.execute(
             UserLoginRecordTable.update().
                 where(UserLoginRecordTable.c.U_ID == user_id).
-                values(U_Login_Date=datetime.date.today(), U_Login_IP=ip)
+                values(U_Login_Date=datetime.datetime.today(), U_Login_IP=ip)
         )
         await conn._commit_impl()
 

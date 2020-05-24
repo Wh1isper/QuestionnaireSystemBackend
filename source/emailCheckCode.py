@@ -7,7 +7,6 @@ from email.header import Header
 from config import *
 
 
-
 async def send_email_checkcode(email: Text) -> Text or None:
     def get_chars(chars: List = init_chars_E, length: int = email_checkcode_length) -> List:
         '''生成给定长度的字符串，返回列表格式'''
@@ -17,6 +16,7 @@ async def send_email_checkcode(email: Text) -> Text or None:
     mail_msg = """
     <p>欢迎注册问卷调查系统</p>
     <p>您的验证码如下：{}</p>
+    <p>邮件自动发送 请勿回复</p>
     """.format(check_code)
     message = MIMEText(mail_msg, 'html', 'utf-8')
     message['From'] = Header(EMAIL_ACCOUNT)
@@ -34,5 +34,6 @@ async def send_email_checkcode(email: Text) -> Text or None:
 
 if __name__ == '__main__':
     import asyncio
+
     loop = asyncio.get_event_loop()
     loop.run_until_complete(send_email_checkcode('9573586@qq.com'))

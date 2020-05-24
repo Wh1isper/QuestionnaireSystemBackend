@@ -31,7 +31,7 @@ Base = declarative_base()
 class UserInfo(Base):
     __tablename__ = "userInfo"
 
-    U_ID = Column("U_ID", BigInteger, primary_key=True)
+    U_ID = Column("U_ID", BigInteger, primary_key=True,autoincrement=True)
     U_Email = Column("U_Email", VARCHAR(50))
     U_Name = Column("U_Name", VARCHAR(20))
     U_Sex = Column("U_Sex", SmallInteger)
@@ -39,7 +39,7 @@ class UserInfo(Base):
 
 
 UserInfoTable = Table('userInfo', Meta,
-                      Column("U_ID", BigInteger, primary_key=True),
+                      Column("U_ID", BigInteger, primary_key=True,autoincrement=True),
                       Column("U_Email", VARCHAR(50)),
                       Column("U_Name", VARCHAR(20)),
                       Column("U_Sex", SmallInteger),
@@ -197,4 +197,7 @@ if __name__ == '__main__':
                   QuestionNaireOptionTable,
                   QuestionNaireTempTable,
                   AnswerOptionTable]:
-            conn.execute(i.select())
+            result = conn.execute(i.select())
+            try:print(result.fetchall())
+            except:
+                pass

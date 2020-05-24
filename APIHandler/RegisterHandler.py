@@ -1,6 +1,11 @@
 from BaseHandler import BaseHandler
 from encrypt import password_encrypt
 from orm import UserInfoTable, UserPwdTable, UserLoginRecordTable
+import json
+import datetime
+from typing import Text
+from config import PASSWORD_REG
+import re
 
 
 class RegisterHandler(BaseHandler):
@@ -8,15 +13,105 @@ class RegisterHandler(BaseHandler):
         BaseHandler.initialize(self)
         self.EMAIL_REPETITION = 1
         self.EMAIL_CHECK_CODE_ERROR = 2
-        # 直接使用接口注册/批量注册，可能出现密码强度不够
         self.PSSAWRD_CHECK_FAIL = 3
         self.PWD_SAULT = pwd_sault
 
     async def post(self, *args, **kwargs):
-        # todo 用户注册 首先检查邮箱是否已经注册，再检查邮箱验证码和密码规范，最后写入数据库完成注册
+        # todo 用户注册 首先检查邮箱是否已经注册，再检查邮箱验证码和密码强度，最后写入数据库完成注册
         # 写入数据库时需要初始化三个表，按以下顺序：UserInfo、UserPwd、UserLoginRecord
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8Capi
-        pass
+        try:
+            json_data: dict = json.loads(self.request.body.decode('utf-8'))
+        except json.decoder.JSONDecodeError:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
+        try:
+            email = json_data.get('email')
+            username = json_data.get('usrname')
+            birth = datetime.datetime.fromtimestamp(int(json_data.get('birth')))
+            pwd = json_data.get('pwd')
+            email_code = json_data.get('email_code')
+            sex = json_data.get('sex')
+        except:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
+        if not (email and username and birth and pwd and email_code and sex):
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
+        if await self.email_is_registered(email):
+            return self.raise_HTTP_error(403, self.EMAIL_REPETITION)
+        EMAIL_CODE = self.get_secure_cookie('email_check_code')
+        if not EMAIL_CODE or EMAIL_CODE != email_code:
+            return self.raise_HTTP_error(403, self.EMAIL_CHECK_CODE_ERROR)
+        if not re.search(PASSWORD_REG, pwd):
+            return self.raise_HTTP_error(403, self.PSSAWRD_CHECK_FAIL)
+        usr_data_dict = {
+            'email': email,
+            'username': username,
+            'birth': birth,
+            'pwd': pwd,
+            'sex': sex,
+        }
+        if not await self.register(usr_data_dict):
+            self.raise_HTTP_error(503,999)
+
+    async def register(self, data_dict: dict) -> bool:
+        async def register_user_info(data_dict: dict) -> int:
+            # 初始化用户信息并返回自增主键U_ID，途中出错返回503，由tornado接管
+            engine = await self.get_engine()
+            async with engine.acquire() as conn:
+                await conn.execute(
+                    UserInfoTable.insert().values(U_Email=data_dict.get('email'),
+                                                  U_Name=data_dict.get('username'),
+                                                  U_Sex=data_dict.get('U_Sex'),
+                                                  U_Birth=data_dict.get('birth'), ))
+                # aiomysql bug .commit()方法不存在
+                # 这里直接调用实现即可 or conn.execute('commit')
+                await conn._commit_impl()
+                result = await conn.execute(
+                    UserInfoTable.select().where(UserInfoTable.c.U_Email == data_dict.get('email')))
+                userinfo = await result.fetchone()
+                if userinfo:
+                    return userinfo.U_ID
+                else:
+                    return 0
+
+        async def register_user_pwd(data_dict: dict, u_id) -> bool:
+            # 初始化用户密码，途中出错返回503，由tornado接管
+            engine = await self.get_engine()
+            async with engine.acquire() as conn:
+                await conn.execute(
+                    UserPwdTable.insert().values(U_ID=u_id,
+                                                 U_Pwd=password_encrypt(data_dict.get('pwd'),
+                                                                        self.PWD_SAULT)))
+                # aiomysql bug .commit()方法不存在
+                # 这里直接调用实现即可 or conn.execute('commit')
+                await conn._commit_impl()
+            return True
+
+        async def register_user_login_record(data_dict: dict, u_id) -> bool:
+            # 初始化用户登录信息，途中出错返回503，由tornado接管
+            engine = await self.get_engine()
+            async with engine.acquire() as conn:
+                await conn.execute(
+                    UserLoginRecordTable.insert().values(U_ID=u_id))
+                # aiomysql bug .commit()方法不存在
+                # 这里直接调用实现即可 or conn.execute('commit')
+                await conn._commit_impl()
+            return True
+
+        u_id = await register_user_info(data_dict)
+        if not u_id:
+            return False
+        await register_user_pwd(data_dict, u_id)
+        await register_user_login_record(data_dict, u_id)
+        return True
+
+    async def email_is_registered(self, email: Text) -> bool:
+        engine = await self.get_engine()
+        async with engine.acquire() as conn:
+            result = await conn.execute(UserInfoTable
+                                        .select()
+                                        .where(UserInfoTable.c.U_Email == email))
+            usr = await result.fetchone()
+            return bool(usr)
 
 
 from config import *
