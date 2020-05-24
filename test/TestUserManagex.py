@@ -1,3 +1,4 @@
+# todo 分支代码覆盖
 import unittest
 from test.BaseAsyncHTTPTestCase import BaseAsyncHTTPTestCase
 import json
@@ -8,8 +9,8 @@ config.DEBUG = True
 
 
 class TestUserRegister(BaseAsyncHTTPTestCase):
-    # 用户注册流程
-    # todo 验证注册数据并清理
+    # 用户注册流程 目前需要手动进入数据库查看测试结果
+    # todo 自动化验证注册数据并清理
     def test_register(self):
         test_url = self.get_url(r'/api/v1/register/')
         body = {
@@ -64,8 +65,8 @@ class TestUserLogout(BaseAsyncHTTPTestCase):
 
 
 class TestUserInfoModify(BaseAsyncHTTPTestCase):
-    # 用户信息修改
-    # todo 验证返回数据并清理
+    # 用户信息修改 目前需要手动进入数据库查看测试结果
+    # todo 自动化验证返回数据并清理
     def test_user_info_modify(self):
         login_url = self.get_url(r"/api/v1/login/")
         body = {
@@ -76,7 +77,7 @@ class TestUserInfoModify(BaseAsyncHTTPTestCase):
         body = json.dumps(body)
         response = self.fetch(login_url, method='POST', body=body)
         cookie = response.headers.get("Set-Cookie")
-        headers = {"Cookie":cookie}
+        headers = {"Cookie": cookie}
         self.assertEqual(response.code, 200)
 
         test_url = self.get_url(r"/api/v1/userInfo/")
