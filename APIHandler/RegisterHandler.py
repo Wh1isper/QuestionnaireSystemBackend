@@ -13,7 +13,7 @@ class RegisterHandler(BaseHandler):
         BaseHandler.initialize(self)
         self.EMAIL_REPETITION = 1
         self.EMAIL_CHECK_CODE_ERROR = 2
-        self.PSSAWRD_CHECK_FAIL = 3
+        self.PWD_REG_CHECK_FAIL = 3
         self.PWD_SAULT = pwd_sault
 
     async def post(self, *args, **kwargs):
@@ -40,7 +40,7 @@ class RegisterHandler(BaseHandler):
         if not self.valid_email_checkcode(email_code):
             return self.raise_HTTP_error(403, self.EMAIL_CHECK_CODE_ERROR)
         if not self.valid_pwd_reg(pwd):
-            return self.raise_HTTP_error(403, self.PSSAWRD_CHECK_FAIL)
+            return self.raise_HTTP_error(403, self.PWD_REG_CHECK_FAIL)
         usr_data_dict = {
             'email': email,
             'username': username,
@@ -117,8 +117,7 @@ class RegisterHandler(BaseHandler):
         EMAIL_CODE = self.get_secure_cookie('email_check_code')
         return DEBUG or (EMAIL_CODE and EMAIL_CODE.strip().lower() == email_code.strip().lower())
 
-    def valid_pwd_reg(self, pwd):
-        return re.search(PASSWORD_REG, pwd)
+
 
 
 from config import *

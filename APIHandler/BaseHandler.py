@@ -4,6 +4,10 @@ import json
 import aiomysql
 from typing import Any
 import functools
+from typing import Text
+import re
+from config import PASSWORD_REG
+
 
 
 class BaseHandler(RequestHandler):
@@ -50,6 +54,9 @@ class BaseHandler(RequestHandler):
             self.log_hook()
         else:
             self.log()
+
+    def valid_pwd_reg(self, pwd: Text) -> bool:
+        return bool(re.search(PASSWORD_REG, pwd))
 
 
 def authenticated(method):

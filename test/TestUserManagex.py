@@ -91,5 +91,31 @@ class TestUserInfoModify(BaseAsyncHTTPTestCase):
         self.assertEqual(response.code, 200)
 
 
+class TestUserPwdChange(BaseAsyncHTTPTestCase):
+    # 用户密码修改 目前需要手动进入数据库查看测试结果
+    # todo 自动化验证返回数据并清理
+    def test_user_info_modify(self):
+        login_url = self.get_url(r"/api/v1/login/")
+        body = {
+            "email": "9573586@qq.com",
+            "pwd": "password123",
+            "check_code": "not test",
+        }
+        body = json.dumps(body)
+        response = self.fetch(login_url, method='POST', body=body)
+        cookie = response.headers.get("Set-Cookie")
+        headers = {"Cookie": cookie}
+        self.assertEqual(response.code, 200)
+
+        test_url = self.get_url(r"/api/v1/changePwd/")
+        body = {
+            "old_pwd": "password123",
+            "pwd": "password12345"
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=headers)
+        self.assertEqual(response.code, 200)
+
+
 if __name__ == '__main__':
     unittest.main()
