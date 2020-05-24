@@ -3,7 +3,7 @@ from source import emailCheckCode, checkCode
 import io
 import time
 import json
-
+from config import DEBUG
 
 class CheckcodeHandler(BaseHandler):
     def get(self, *args, **kwargs):

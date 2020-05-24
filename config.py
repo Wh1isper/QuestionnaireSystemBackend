@@ -1,3 +1,5 @@
+DEBUG = False
+
 # 密码加盐
 PWD_SAULT = "this is not a password sault"
 # cookie加盐

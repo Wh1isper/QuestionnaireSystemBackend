@@ -3,8 +3,8 @@
 # See doc https://github.com/Wh1isper/QuestionnaireSystemDoc
 
 from db_config import *
-
-# from sqlalchemy import create_engine  # 原生的sqlalchemy engine
+# sqlalchemy原生用法
+# from sqlalchemy import create_engine
 #
 # engine = create_engine(
 #     'mysql+mysqldb://{username}:{password}@{host}:{port}/{db_name}?charset=utf8'.format(username=USERNAME,
@@ -14,8 +14,7 @@ from db_config import *
 #                                                                                         port=PORT),
 #     pool_recycle=3600)
 #
-from sqlalchemy.orm import sessionmaker
-
+# from sqlalchemy.orm import sessionmaker
 # Session = sessionmaker(engine)
 
 from sqlalchemy.ext.declarative import declarative_base

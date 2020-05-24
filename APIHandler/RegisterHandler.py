@@ -4,7 +4,7 @@ from orm import UserInfoTable, UserPwdTable, UserLoginRecordTable
 import json
 import datetime
 from typing import Text
-from config import PASSWORD_REG
+from config import PASSWORD_REG, DEBUG
 import re
 
 
@@ -17,7 +17,7 @@ class RegisterHandler(BaseHandler):
         self.PWD_SAULT = pwd_sault
 
     async def post(self, *args, **kwargs):
-        # todo 用户注册 首先检查邮箱是否已经注册，再检查邮箱验证码和密码强度，最后写入数据库完成注册
+        # 用户注册 首先检查邮箱是否已经注册，再检查邮箱验证码和密码强度，最后写入数据库完成注册
         # 写入数据库时需要初始化三个表，按以下顺序：UserInfo、UserPwd、UserLoginRecord
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8Capi
         try:
@@ -37,10 +37,9 @@ class RegisterHandler(BaseHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if await self.email_is_registered(email):
             return self.raise_HTTP_error(403, self.EMAIL_REPETITION)
-        EMAIL_CODE = self.get_secure_cookie('email_check_code')
-        if not EMAIL_CODE or EMAIL_CODE != email_code:
+        if not self.valid_email_checkcode(email_code):
             return self.raise_HTTP_error(403, self.EMAIL_CHECK_CODE_ERROR)
-        if not re.search(PASSWORD_REG, pwd):
+        if not self.valid_pwd_reg(pwd):
             return self.raise_HTTP_error(403, self.PSSAWRD_CHECK_FAIL)
         usr_data_dict = {
             'email': email,
@@ -49,8 +48,7 @@ class RegisterHandler(BaseHandler):
             'pwd': pwd,
             'sex': sex,
         }
-        if not await self.register(usr_data_dict):
-            self.raise_HTTP_error(503,999)
+        await self.register(usr_data_dict)
 
     async def register(self, data_dict: dict) -> bool:
         async def register_user_info(data_dict: dict) -> int:
@@ -112,6 +110,14 @@ class RegisterHandler(BaseHandler):
                                         .where(UserInfoTable.c.U_Email == email))
             usr = await result.fetchone()
             return bool(usr)
+
+    def valid_email_checkcode(self, email_code: Text) -> bool:
+        # 验证邮箱验证码 DEBUG模式下无需验证
+        EMAIL_CODE = self.get_secure_cookie('email_check_code')
+        return DEBUG or (EMAIL_CODE and EMAIL_CODE.strip().lower() == email_code.strip().lower())
+
+    def valid_pwd_reg(self, pwd):
+        return re.search(PASSWORD_REG, pwd)
 
 
 from config import *

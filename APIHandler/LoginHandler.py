@@ -36,10 +36,16 @@ class LoginHandler(BaseHandler):
         self.set_status(200)
 
     def valid_checkcode(self, check_code: Text) -> bool:
-        return self.get_secure_cookie("check_code").strip().lower() == check_code.strip().lower()
+        # 验证码 DEBUG模式下无需验证
+        CHECK_CODE = self.get_secure_cookie("check_code")
+        return DEBUG or (CHECK_CODE and CHECK_CODE.strip().lower() == check_code.strip().lower())
 
     async def valid_user(self, email: Text, pwd: Text) -> Text or None:
-        async def valid_email(email: Text, engine) -> Text or None:
+        # 验证用户
+        # 第一步验证邮箱是否注册，返回用户ID
+        # 第二部验证用户ID与密码是否对应
+        async def valid_email(email: Text) -> Text or None:
+            engine = await self.get_engine()
             async with engine.acquire() as conn:
                 result = await conn.execute(UserInfoTable.select().where(UserInfoTable.c.U_Email == email))
                 userinfo = await result.fetchone()
@@ -48,7 +54,8 @@ class LoginHandler(BaseHandler):
                 else:
                     return None
 
-        async def valid_pwd(uid: Text, pwd: Text, engine) -> bool:
+        async def valid_pwd(uid: Text, pwd: Text) -> bool:
+            engine = await self.get_engine()
             secure_pwd = password_encrypt(pwd, self.PWD_SAULT)
             async with engine.acquire() as conn:
                 result = await conn.execute(UserPwdTable.select()
@@ -57,11 +64,10 @@ class LoginHandler(BaseHandler):
                 userinfo = await result.fetchone()
                 return bool(userinfo)
 
-        engine = await self.get_engine()
-        u_id = await valid_email(email, engine)
+        u_id = await valid_email(email)
         if not u_id:
             return None
-        isvalid = await valid_pwd(u_id, pwd, engine)
+        isvalid = await valid_pwd(u_id, pwd)
         if not isvalid:
             return None
         return str(u_id)

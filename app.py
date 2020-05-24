@@ -6,9 +6,6 @@ sys.path.append('./ORM')
 
 import tornado.ioloop
 import tornado.web
-
-from CheckcodeHandler import CheckcodeHandler
-from LoginHandler import LoginHandler
 from config import *
 
 
