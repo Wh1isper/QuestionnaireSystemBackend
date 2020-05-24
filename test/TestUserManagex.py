@@ -2,32 +2,92 @@ import unittest
 from test.BaseAsyncHTTPTestCase import BaseAsyncHTTPTestCase
 import json
 import config
+import time
 
 config.DEBUG = True
 
 
 class TestUserRegister(BaseAsyncHTTPTestCase):
-    # todo 用户注册流程
+    # 用户注册流程
+    # todo 验证注册数据并清理
     def test_register(self):
-        pass
+        test_url = self.get_url(r'/api/v1/register/')
+        body = {
+            "email": "9573586@qq.com",
+            "usrname": "jizs",
+            "birth": time.time(),
+            "pwd": "password123",
+            "email_code": "not test",
+            "sex": 1
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body)
+        print(response.body)
+        self.assertEqual(response.code, 200)
 
 
 class TestUserLogin(BaseAsyncHTTPTestCase):
-    # todo 用户登录流程
+    # 用户登录流程
     def test_user_login(self):
-        pass
+        test_url = self.get_url(r"/api/v1/login/")
+        body = {
+            "email": "9573586@qq.com",
+            "pwd": "password123",
+            "check_code": "not test",
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body)
+        print(response.headers.get("Set-cookie"))
+        self.assertEqual(response.code, 200)
 
 
 class TestUserLogout(BaseAsyncHTTPTestCase):
-    # todo 用户注销流程
+    # 用户注销流程
     def test_user_logout(self):
-        pass
+        login_url = self.get_url(r"/api/v1/login/")
+        body = {
+            "email": "9573586@qq.com",
+            "pwd": "password123",
+            "check_code": "not test",
+        }
+        body = json.dumps(body)
+        response = self.fetch(login_url, method='POST', body=body)
+        print("login")
+        print(response.headers.get("Set-cookie"))
+        self.assertEqual(response.code, 200)
+
+        test_url = self.get_url(r"/api/v1/logout/")
+        print("logout")
+        response = self.fetch(test_url, method='GET')
+        print(response.headers.get("Set-cookie"))
+        self.assertEqual(response.code, 200)
 
 
 class TestUserInfoModify(BaseAsyncHTTPTestCase):
-    # todo 用户信息修改
+    # 用户信息修改
+    # todo 验证返回数据并清理
     def test_user_info_modify(self):
-        pass
+        login_url = self.get_url(r"/api/v1/login/")
+        body = {
+            "email": "9573586@qq.com",
+            "pwd": "password123",
+            "check_code": "not test",
+        }
+        body = json.dumps(body)
+        response = self.fetch(login_url, method='POST', body=body)
+        cookie = response.headers.get("Set-Cookie")
+        headers = {"Cookie":cookie}
+        self.assertEqual(response.code, 200)
+
+        test_url = self.get_url(r"/api/v1/userInfo/")
+        body = {
+            "usrname": "jizs-modify",
+            "birth": time.time(),
+            "sex": 0,
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=headers)
+        self.assertEqual(response.code, 200)
 
 
 if __name__ == '__main__':

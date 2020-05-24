@@ -61,7 +61,7 @@ class LoginHandler(BaseHandler):
             async with engine.acquire() as conn:
                 result = await conn.execute(UserPwdTable.select()
                                             .where(UserPwdTable.c.U_ID == u_id)
-                                            .where(UserPwdTable.c.U_PWD == secure_pwd))
+                                            .where(UserPwdTable.c.U_Pwd == secure_pwd))
                 userinfo = await result.fetchone()
                 return bool(userinfo)
 

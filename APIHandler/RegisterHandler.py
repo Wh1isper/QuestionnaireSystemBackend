@@ -58,8 +58,9 @@ class RegisterHandler(BaseHandler):
                 await conn.execute(
                     UserInfoTable.insert().values(U_Email=data_dict.get('email'),
                                                   U_Name=data_dict.get('username'),
-                                                  U_Sex=data_dict.get('U_Sex'),
-                                                  U_Birth=data_dict.get('birth'), ))
+                                                  U_Sex=data_dict.get('sex'),
+                                                  U_Birth=data_dict.get('birth'),
+                                                  U_State=0))
                 # aiomysql bug .commit()方法不存在
                 # 这里直接调用实现即可 or conn.execute('commit')
                 await conn._commit_impl()

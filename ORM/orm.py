@@ -33,6 +33,7 @@ class UserInfo(Base):
     U_Name = Column("U_Name", VARCHAR(20))
     U_Sex = Column("U_Sex", SmallInteger)
     U_Birth = Column("U_Birth", DateTime)
+    U_State = Column("U_State", SmallInteger)
 
 
 UserInfoTable = Table('userInfo', Meta,
@@ -40,7 +41,8 @@ UserInfoTable = Table('userInfo', Meta,
                       Column("U_Email", VARCHAR(50)),
                       Column("U_Name", VARCHAR(20)),
                       Column("U_Sex", SmallInteger),
-                      Column("U_Birth", DateTime)
+                      Column("U_Birth", DateTime),
+                      Column("U_State", SmallInteger)
                       )
 
 
