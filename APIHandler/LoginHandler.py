@@ -4,6 +4,7 @@ import json
 from orm import UserInfoTable, UserPwdTable, UserLoginRecordTable
 from encrypt import password_encrypt
 import datetime
+from config import DEBUG
 
 
 class LoginHandler(BaseHandler):

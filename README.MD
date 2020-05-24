@@ -26,6 +26,8 @@ pip install -r requirements.txt
 
 ### 4. 运行app.py
 
+### 5. 更改配置见config.py
+
 # !!!不要恶意使用里面公开的邮件账号
 # !!!你应该注册一个新的
 
