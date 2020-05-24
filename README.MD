@@ -2,7 +2,7 @@
 
 开发语言：Python 3.7（>=3.5 应该可以）
 
-数据库支持：MySQL（其他数据库需要更换异步数据库访问组件，或者使用同步操作）
+数据库支持：MySQL（其他数据库未测试，由sqlalchemy支持）
 
 支持平台：Windows/Linux（建议Linux，异步服务Windows下只支持select模式）
 
@@ -22,7 +22,12 @@ pip install -r requirements.txt
 
 ### 3. 配置数据库
 
-见 /ORM/db_config.py
+见 db_config.py
 
 ### 4. 运行app.py
+
+### 5. 更改配置见config.py
+
+# !!!不要恶意使用里面公开的邮件账号
+# !!!你应该注册一个新的
 
