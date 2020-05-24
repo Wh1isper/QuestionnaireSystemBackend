@@ -27,12 +27,13 @@ DROP TABLE IF EXISTS USERINFO;
 /*==============================================================*/
 CREATE TABLE ANSWEROPTION
 (
+    AO_ID      BIGINT   NOT NULL AUTO_INCREMENT,
     QO_ID      BIGINT   NOT NULL,
     QQ_ID      BIGINT   NOT NULL,
     QI_ID      BIGINT   NOT NULL,
     QO_TYPE    SMALLINT NOT NULL,
     AO_CONTENT VARCHAR(140),
-    PRIMARY KEY (QO_ID, QQ_ID, QI_ID)
+    PRIMARY KEY (AO_ID)
 );
 
 /*==============================================================*/
@@ -77,11 +78,11 @@ CREATE TABLE QUESNAIREQUESTION
 /*==============================================================*/
 /* Table: QuesnaireTemp                                         */
 /*==============================================================*/
-create table QuesnaireTemp
+CREATE TABLE QUESNAIRETEMP
 (
-   QI_ID                bigint not null,
-   Q_Content            text,
-   primary key (QI_ID)
+    QI_ID     BIGINT NOT NULL,
+    Q_CONTENT TEXT,
+    PRIMARY KEY (QI_ID)
 );
 
 /*==============================================================*/

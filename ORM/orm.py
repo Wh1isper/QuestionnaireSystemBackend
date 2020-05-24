@@ -22,8 +22,6 @@ from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy import Column, ForeignKey, MetaData, Table
 from sqlalchemy import (BigInteger, SmallInteger, DateTime, VARCHAR, CHAR, Text)
 
-
-
 Meta = MetaData()
 Base = declarative_base()
 
@@ -31,7 +29,7 @@ Base = declarative_base()
 class UserInfo(Base):
     __tablename__ = "userInfo"
 
-    U_ID = Column("U_ID", BigInteger, primary_key=True,autoincrement=True)
+    U_ID = Column("U_ID", BigInteger, primary_key=True, autoincrement=True)
     U_Email = Column("U_Email", VARCHAR(50))
     U_Name = Column("U_Name", VARCHAR(20))
     U_Sex = Column("U_Sex", SmallInteger)
@@ -39,7 +37,7 @@ class UserInfo(Base):
 
 
 UserInfoTable = Table('userInfo', Meta,
-                      Column("U_ID", BigInteger, primary_key=True,autoincrement=True),
+                      Column("U_ID", BigInteger, primary_key=True, autoincrement=True),
                       Column("U_Email", VARCHAR(50)),
                       Column("U_Name", VARCHAR(20)),
                       Column("U_Sex", SmallInteger),
@@ -148,21 +146,19 @@ QuestionNaireTempTable = Table('quesNaireTemp', Meta,
 
 class AnswerOption(Base):
     __tablename__ = "answerOption"
-
-    QO_ID = Column("QO_ID", BigInteger, ForeignKey("quesNaireOption.QO_ID"), primary_key=True)
-    QQ_ID = Column("QQ_ID", BigInteger, ForeignKey("quesNaireQuestion.QQ_ID"), primary_key=True)
-    QI_ID = Column("QI_ID", BigInteger, ForeignKey("quesNaireInfo.QI_ID"), primary_key=True)
+    AO_ID = Column("AO_ID", BigInteger, primary_key=True, autoincrement=True)
+    QO_ID = Column("QO_ID", BigInteger, ForeignKey("quesNaireOption.QO_ID"))
+    QQ_ID = Column("QQ_ID", BigInteger, ForeignKey("quesNaireQuestion.QQ_ID"))
+    QI_ID = Column("QI_ID", BigInteger, ForeignKey("quesNaireInfo.QI_ID"))
     QO_Type = Column("QO_Type", SmallInteger)
     AO_Content = Column("AO_Content", VARCHAR(140))
 
 
 AnswerOptionTable = Table('answerOption', Meta,
-                          Column("QO_ID", BigInteger, ForeignKey("quesNaireOption.QO_ID"),
-                                 primary_key=True),
-                          Column("QQ_ID", BigInteger, ForeignKey("quesNaireQuestion.QQ_ID"),
-                                 primary_key=True),
-                          Column("QI_ID", BigInteger, ForeignKey("quesNaireInfo.QI_ID"),
-                                 primary_key=True),
+                          Column("AO_ID", BigInteger, primary_key=True, autoincrement=True),
+                          Column("QO_ID", BigInteger, ForeignKey("quesNaireOption.QO_ID")),
+                          Column("QQ_ID", BigInteger, ForeignKey("quesNaireQuestion.QQ_ID")),
+                          Column("QI_ID", BigInteger, ForeignKey("quesNaireInfo.QI_ID")),
                           Column("QO_Type", SmallInteger),
                           Column("AO_Content", VARCHAR(140)),
                           )
@@ -198,6 +194,7 @@ if __name__ == '__main__':
                   QuestionNaireTempTable,
                   AnswerOptionTable]:
             result = conn.execute(i.select())
-            try:print(result.fetchall())
+            try:
+                print(result.fetchall())
             except:
                 pass
