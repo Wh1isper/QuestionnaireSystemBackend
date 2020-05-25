@@ -1,4 +1,4 @@
-# todo 分支代码覆盖
+# todo 分支代码覆盖、自动化验证
 import unittest
 from test.BaseAsyncHTTPTestCase import BaseAsyncHTTPTestCase
 import json

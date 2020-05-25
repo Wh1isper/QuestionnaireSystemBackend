@@ -15,13 +15,6 @@ def load_handlers(name):
     return mod.default_handlers
 
 
-class MainHandler(tornado.web.RequestHandler):
-    def get(self):
-        # 向响应中添加数据
-        # self.write('hello,tornado,my name is get...')
-        self.render('index.html')
-
-
 def make_app():
     settings = {
         "cookie_secret": COOKIE_SECRET,

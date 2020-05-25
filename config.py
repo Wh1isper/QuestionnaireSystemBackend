@@ -1,5 +1,6 @@
 DEBUG = False  # 若需测试，建议不要在这里修改，见test文件夹下单元测试实现
-
+ADMIN_ACOUNT = 'admin'
+ADMIN_PASSWORD = '2c4996fe9684b85f228d38115211fbb671d4005bbeb304dfa522c6026ffba484'  # password12345
 # 密码加盐
 PWD_SAULT = "this is not a password sault"
 # cookie加盐
