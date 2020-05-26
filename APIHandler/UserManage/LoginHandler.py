@@ -34,7 +34,6 @@ class LoginHandler(BaseHandler):
             return self.raise_HTTP_error(403, self.USER_PWD_ERROR)
         await self.login_record(user_id)
         self.set_secure_cookie("user", user_id, expires_days=1)
-        self.set_status(200)
 
     def valid_checkcode(self, check_code: Text) -> bool:
         # 验证码 DEBUG模式下无需验证
@@ -91,12 +90,11 @@ class LoginHandler(BaseHandler):
 class LogoutHandler(BaseHandler):
     def get(self, *args, **kwargs):
         self.clear_cookie('user')
-        self.set_status(200)
 
 
 from config import *
 
 default_handlers = [
-    (r"/api/v1/login/", LoginHandler, dict(pwd_sault=PWD_SAULT)),
+    (r"/api/v1/login/", LoginHandler, dict(pwd_sault=PWD_SALT)),
     (r"/api/v1/logout/", LogoutHandler),
 ]

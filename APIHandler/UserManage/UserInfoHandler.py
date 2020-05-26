@@ -90,5 +90,5 @@ from config import *
 
 default_handlers = [
     (r"/api/v1/userInfo/", UserInfoHandler),
-    (r"/api/v1/changePwd/", UserChangePwdHandler, dict(pwd_sault=PWD_SAULT))
+    (r"/api/v1/changePwd/", UserChangePwdHandler, dict(pwd_sault=PWD_SALT))
 ]

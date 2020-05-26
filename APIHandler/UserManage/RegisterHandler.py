@@ -123,5 +123,5 @@ class RegisterHandler(BaseHandler):
 from config import *
 
 default_handlers = [
-    (r"/api/v1/register/", RegisterHandler, dict(pwd_sault=PWD_SAULT)),
+    (r"/api/v1/register/", RegisterHandler, dict(pwd_sault=PWD_SALT)),
 ]
