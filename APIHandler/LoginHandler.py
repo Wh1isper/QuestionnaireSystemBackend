@@ -9,7 +9,7 @@ from config import DEBUG
 
 class LoginHandler(BaseHandler):
     def initialize(self, pwd_sault):
-        BaseHandler.initialize(self)
+        super(LoginHandler, self).initialize()
         self.USER_PWD_ERROR = 1
         self.CHECK_CODE_ERROR = 2
         self.PWD_SAULT = pwd_sault

@@ -9,7 +9,7 @@ config.DEBUG = True
 
 class TestAdminLoginHandler(BaseAsyncHTTPTestCase):
     def test_login_success(self):
-        test_url = self.get_url('/api/v1/admin/login/')
+        test_url = self.get_url(r'/api/v1/admin/login/')
         body = {
             "admin": config.ADMIN_ACOUNT,
             "pwd": 'password12345'
@@ -23,7 +23,7 @@ class TestAdminLoginHandler(BaseAsyncHTTPTestCase):
 class TestAdminChangeUserState(BaseAsyncHTTPTestCase):
     def test_ban_user(self):
         # todo 自动化验证
-        login_url = self.get_url('/api/v1/admin/login/')
+        login_url = self.get_url(r'/api/v1/admin/login/')
         body = {
             "admin": config.ADMIN_ACOUNT,
             "pwd": 'password12345'
@@ -34,7 +34,7 @@ class TestAdminChangeUserState(BaseAsyncHTTPTestCase):
         self.assertIsNotNone(response.headers.get('Set-cookie'))
         cookie = response.headers.get("Set-Cookie")
         headers = {"Cookie": cookie}
-        test_url = self.get_url("/api/v1/admin/userStateChange/")
+        test_url = self.get_url(r"/api/v1/admin/userStateChange/")
         test_body = {
             "email": "9573586@qq.com",
             "type": 1
@@ -44,7 +44,7 @@ class TestAdminChangeUserState(BaseAsyncHTTPTestCase):
 
     def test_unban_user(self):
         # todo 自动化验证
-        login_url = self.get_url('/api/v1/admin/login/')
+        login_url = self.get_url(r'/api/v1/admin/login/')
         body = {
             "admin": config.ADMIN_ACOUNT,
             "pwd": 'password12345'
@@ -55,7 +55,7 @@ class TestAdminChangeUserState(BaseAsyncHTTPTestCase):
         self.assertIsNotNone(response.headers.get('Set-cookie'))
         cookie = response.headers.get("Set-Cookie")
         headers = {"Cookie": cookie}
-        test_url = self.get_url("/api/v1/admin/userStateChange/")
+        test_url = self.get_url(r"/api/v1/admin/userStateChange/")
         test_body = {
             "email": "9573586@qq.com",
             "type": 0
@@ -67,7 +67,7 @@ class TestAdminChangeUserState(BaseAsyncHTTPTestCase):
 class TestAdminChangeQuestionaireState(BaseAsyncHTTPTestCase):
     def test_ban_Questionaire(self):
         # todo 自动化验证
-        login_url = self.get_url('/api/v1/admin/login/')
+        login_url = self.get_url(r'/api/v1/admin/login/')
         body = {
             "admin": config.ADMIN_ACOUNT,
             "pwd": 'password12345'
@@ -78,7 +78,7 @@ class TestAdminChangeQuestionaireState(BaseAsyncHTTPTestCase):
         self.assertIsNotNone(response.headers.get('Set-cookie'))
         cookie = response.headers.get("Set-Cookie")
         headers = {"Cookie": cookie}
-        test_url = self.get_url("/api/v1/admin/questionnaireStateChange/")
+        test_url = self.get_url(r"/api/v1/admin/questionnaireStateChange/")
         test_body = {
             "Q_ID": "9573586@qq.com",
             "type": 1
@@ -88,7 +88,7 @@ class TestAdminChangeQuestionaireState(BaseAsyncHTTPTestCase):
 
     def test_unban_Questionaire(self):
         # todo 自动化验证
-        login_url = self.get_url('/api/v1/admin/login/')
+        login_url = self.get_url(r'/api/v1/admin/login/')
         body = {
             "admin": config.ADMIN_ACOUNT,
             "pwd": 'password12345'
@@ -99,7 +99,7 @@ class TestAdminChangeQuestionaireState(BaseAsyncHTTPTestCase):
         self.assertIsNotNone(response.headers.get('Set-cookie'))
         cookie = response.headers.get("Set-Cookie")
         headers = {"Cookie": cookie}
-        test_url = self.get_url("/api/v1/admin/questionnaireStateChange/")
+        test_url = self.get_url(r"/api/v1/admin/questionnaireStateChange/")
         test_body = {
             "Q_ID": "9573586@qq.com",
             "type": 0
@@ -111,7 +111,7 @@ class TestAdminChangeQuestionaireState(BaseAsyncHTTPTestCase):
 class TestAdminGetUserList(BaseAsyncHTTPTestCase):
     def test_get_list(self):
         # todo 自动化验证
-        login_url = self.get_url('/api/v1/admin/login/')
+        login_url = self.get_url(r'/api/v1/admin/login/')
         body = {
             "admin": config.ADMIN_ACOUNT,
             "pwd": 'password12345'
@@ -122,13 +122,13 @@ class TestAdminGetUserList(BaseAsyncHTTPTestCase):
         self.assertIsNotNone(response.headers.get('Set-cookie'))
         cookie = response.headers.get("Set-Cookie")
         headers = {"Cookie": cookie}
-        test_url = self.get_url("/api/v1/admin/userList/")
+        test_url = self.get_url(r"/api/v1/admin/userList/")
         response = self.fetch(test_url, method='GET', headers=headers)
         self.assertEqual(response.code, 200)
         self.assertIsNotNone(response.body)
         print(response.body)
 
-        test_url = self.get_url("/api/v1/admin/userList/?offset={}".format(20))
+        test_url = self.get_url(r"/api/v1/admin/userList/?offset={}".format(20))
         response = self.fetch(test_url, method='GET', headers=headers)
         self.assertEqual(response.code, 200)
         self.assertIsNotNone(response.body)
@@ -138,7 +138,7 @@ class TestAdminGetUserList(BaseAsyncHTTPTestCase):
 class TestAdminGetQuestionnaireList(BaseAsyncHTTPTestCase):
     def test_get_list(self):
         # todo 自动化验证
-        login_url = self.get_url('/api/v1/admin/login/')
+        login_url = self.get_url(r'/api/v1/admin/login/')
         body = {
             "admin": config.ADMIN_ACOUNT,
             "pwd": 'password12345'
@@ -149,13 +149,13 @@ class TestAdminGetQuestionnaireList(BaseAsyncHTTPTestCase):
         self.assertIsNotNone(response.headers.get('Set-cookie'))
         cookie = response.headers.get("Set-Cookie")
         headers = {"Cookie": cookie}
-        test_url = self.get_url("/api/v1/admin/questionnaireList/")
+        test_url = self.get_url(r"/api/v1/admin/questionnaireList/")
         response = self.fetch(test_url, method='GET', headers=headers)
         self.assertEqual(response.code, 200)
         self.assertIsNotNone(response.body)
         print(response.body)
 
-        test_url = self.get_url("/api/v1/admin/questionnaireList/?offset={}".format(20))
+        test_url = self.get_url(r"/api/v1/admin/questionnaireList/?offset={}".format(20))
         response = self.fetch(test_url, method='GET', headers=headers)
         self.assertEqual(response.code, 200)
         self.assertIsNotNone(response.body)

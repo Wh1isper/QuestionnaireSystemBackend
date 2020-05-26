@@ -44,7 +44,7 @@ class UserInfoHandler(BaseHandler):
 
 class UserChangePwdHandler(BaseHandler):
     def initialize(self, pwd_sault):
-        BaseHandler.initialize(self)
+        super(UserChangePwdHandler, self).initialize()
         self.OLDPWD_ERROR = 1
         self.PWD_REG_CHECK_FAIL = 2
         self.PWD_SAULT = pwd_sault

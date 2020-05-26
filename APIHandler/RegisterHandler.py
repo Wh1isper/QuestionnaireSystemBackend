@@ -10,7 +10,7 @@ import re
 
 class RegisterHandler(BaseHandler):
     def initialize(self, pwd_sault):
-        BaseHandler.initialize(self)
+        super(RegisterHandler, self).initialize()
         self.EMAIL_REPETITION = 1
         self.EMAIL_CHECK_CODE_ERROR = 2
         self.PWD_REG_CHECK_FAIL = 3

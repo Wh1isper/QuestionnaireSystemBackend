@@ -5,6 +5,7 @@ import time
 import json
 from config import DEBUG
 
+
 class CheckcodeHandler(BaseHandler):
     def get(self, *args, **kwargs):
         # 返回验证码 set-cookie:check_code为验证码
@@ -20,7 +21,7 @@ class CheckcodeHandler(BaseHandler):
 
 class EmailCheckcodeHandler(BaseHandler):
     def initialize(self):
-        BaseHandler.initialize(self)
+        super(EmailCheckcodeHandler, self).initialize()
         self.SEND_CHECK_CODE_FAIL = 1
 
     async def post(self, *args, **kwargs):
