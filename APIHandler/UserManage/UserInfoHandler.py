@@ -4,9 +4,26 @@ import json
 import datetime
 from typing import Text
 from encrypt import password_encrypt
-
+import time
 
 class UserInfoHandler(BaseHandler):
+    @authenticated
+    async def get(self, *args, **kwargs):
+        engine = await self.get_engine()
+        async with engine.acquire() as conn:
+            result = await conn.execute(UserInfoTable.select()
+                                        .where(UserInfoTable.c.U_ID == self.current_user))
+            user_info = await result.fetchone()
+        birth = time.mktime(user_info.U_Birth.timetuple())
+        user_module = {
+            "email": user_info.U_Email,
+            "usrname": user_info.U_Name,
+            "sex": user_info.U_Sex,
+            "birth": birth,
+            "state": user_info.U_State,
+        }
+        self.write(user_module)
+
     @authenticated
     async def post(self, *args, **kwargs):
         try:
@@ -43,11 +60,11 @@ class UserInfoHandler(BaseHandler):
 
 
 class UserChangePwdHandler(BaseHandler):
-    def initialize(self, pwd_sault):
+    def initialize(self, pwd_salt):
         super(UserChangePwdHandler, self).initialize()
         self.OLDPWD_ERROR = 1
         self.PWD_REG_CHECK_FAIL = 2
-        self.PWD_SAULT = pwd_sault
+        self.PWD_SALT = pwd_salt
 
     @authenticated
     async def post(self, *args, **kwargs):
@@ -68,7 +85,7 @@ class UserChangePwdHandler(BaseHandler):
 
     async def update_pwd(self, pwd: Text) -> None:
         engine = await self.get_engine()
-        secure_pwd = password_encrypt(pwd, self.PWD_SAULT)
+        secure_pwd = password_encrypt(pwd, self.PWD_SALT)
         async with engine.acquire() as conn:
             await conn.execute(UserPwdTable.update()
                                .where(UserPwdTable.c.U_ID == self.current_user)
@@ -77,7 +94,7 @@ class UserChangePwdHandler(BaseHandler):
 
     async def valid_pwd(self, pwd: Text) -> bool:
         engine = await self.get_engine()
-        secure_pwd = password_encrypt(pwd, self.PWD_SAULT)
+        secure_pwd = password_encrypt(pwd, self.PWD_SALT)
         async with engine.acquire() as conn:
             result = await conn.execute(UserPwdTable.select()
                                         .where(UserPwdTable.c.U_ID == self.current_user)
@@ -90,5 +107,5 @@ from config import *
 
 default_handlers = [
     (r"/api/v1/userInfo/", UserInfoHandler),
-    (r"/api/v1/changePwd/", UserChangePwdHandler, dict(pwd_sault=PWD_SALT))
+    (r"/api/v1/changePwd/", UserChangePwdHandler, dict(pwd_salt=PWD_SALT))
 ]

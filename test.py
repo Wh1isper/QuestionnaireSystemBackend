@@ -28,10 +28,10 @@ async def test_table_orm():
 async def test_query():
     engine = await get_engine()
     async with engine.acquire() as conn:
-        result = await conn.execute(UserInfoTable.select().where(text('U_NAME = \'111\'')))
-        print(UserInfoTable.select().where(text('U_NAME = 111')))
-        userinfo = await result.fetchone()
-        print(userinfo)
+        result = await conn.execute(UserInfoTable.select()
+                                    .where(UserInfoTable.c.U_ID == 3))
+        user_info = await result.fetchone()
+    print(user_info)
 
 
 import time
@@ -50,4 +50,4 @@ async def login_record(user_id=1):
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()
-    loop.run_until_complete(login_record())
+    loop.run_until_complete(test_query())

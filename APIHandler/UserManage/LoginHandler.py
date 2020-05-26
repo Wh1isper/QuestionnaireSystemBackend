@@ -8,11 +8,11 @@ from config import DEBUG
 
 
 class LoginHandler(BaseHandler):
-    def initialize(self, pwd_sault):
+    def initialize(self, pwd_salt):
         super(LoginHandler, self).initialize()
         self.USER_PWD_ERROR = 1
         self.CHECK_CODE_ERROR = 2
-        self.PWD_SAULT = pwd_sault
+        self.PWD_SALT = pwd_salt
 
     async def post(self, *args, **kwargs):
         # 获取post请求数据 访问数据库进行用户验证并记录登录
@@ -56,7 +56,7 @@ class LoginHandler(BaseHandler):
 
         async def valid_pwd(uid: Text, pwd: Text) -> bool:
             engine = await self.get_engine()
-            secure_pwd = password_encrypt(pwd, self.PWD_SAULT)
+            secure_pwd = password_encrypt(pwd, self.PWD_SALT)
             async with engine.acquire() as conn:
                 result = await conn.execute(UserPwdTable.select()
                                             .where(UserPwdTable.c.U_ID == u_id)
@@ -95,6 +95,6 @@ class LogoutHandler(BaseHandler):
 from config import *
 
 default_handlers = [
-    (r"/api/v1/login/", LoginHandler, dict(pwd_sault=PWD_SALT)),
+    (r"/api/v1/login/", LoginHandler, dict(pwd_salt=PWD_SALT)),
     (r"/api/v1/logout/", LogoutHandler),
 ]

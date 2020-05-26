@@ -17,6 +17,8 @@ class CheckcodeHandler(BaseHandler):
         self.write(imgio.getvalue())
         # 10分钟过期的cookie
         self.set_secure_cookie("check_code", code, expires_days=None, expires=time.time() + 60 * 10)
+        if DEBUG:
+            print("DEBUG: Check Code Get:{}".format(code))
 
 
 class EmailCheckcodeHandler(BaseHandler):

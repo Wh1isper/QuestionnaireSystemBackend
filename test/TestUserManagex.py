@@ -67,6 +67,26 @@ class TestUserLogout(BaseAsyncHTTPTestCase):
 class TestUserInfoModify(BaseAsyncHTTPTestCase):
     # 用户信息修改 目前需要手动进入数据库查看测试结果
     # todo 自动化验证返回数据并清理
+    def test_get_user_info(self):
+        login_url = self.get_url(r"/api/v1/login/")
+        body = {
+            "email": "9573586@qq.com",
+            "pwd": "password123",
+            "check_code": "not test",
+        }
+        body = json.dumps(body)
+        response = self.fetch(login_url, method='POST', body=body)
+        cookie = response.headers.get("Set-Cookie")
+        headers = {"Cookie": cookie}
+        self.assertEqual(response.code, 200)
+
+        test_url = self.get_url(r"/api/v1/userInfo/")
+        response = self.fetch(test_url, method='GET', headers=headers)
+        self.assertEqual(response.code, 200)
+        self.assertIsNotNone(response.body)
+        print(response.body)
+
+
     def test_user_info_modify(self):
         login_url = self.get_url(r"/api/v1/login/")
         body = {

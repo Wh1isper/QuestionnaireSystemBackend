@@ -30,6 +30,9 @@ def make_app():
     handlers.extend(load_handlers('APIHandler.UserManage.LoginHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.RegisterHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.UserInfoHandler'))
+    handlers.extend(load_handlers('APIHandler.UserQuestionnaire.UserQuestionnaireHandler'))
+    handlers.extend(load_handlers('APIHandler.UserQuestionnaire.QuestionnaireRenameHandler'))
+
     return tornado.web.Application(handlers, **settings)
 
 

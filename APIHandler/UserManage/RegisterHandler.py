@@ -9,12 +9,12 @@ import re
 
 
 class RegisterHandler(BaseHandler):
-    def initialize(self, pwd_sault):
+    def initialize(self, pwd_salt):
         super(RegisterHandler, self).initialize()
         self.EMAIL_REPETITION = 1
         self.EMAIL_CHECK_CODE_ERROR = 2
         self.PWD_REG_CHECK_FAIL = 3
-        self.PWD_SAULT = pwd_sault
+        self.PWD_SALT = pwd_salt
 
     async def post(self, *args, **kwargs):
         # 用户注册 首先检查邮箱是否已经注册，再检查邮箱验证码和密码强度，最后写入数据库完成注册
@@ -33,7 +33,7 @@ class RegisterHandler(BaseHandler):
             sex = json_data.get('sex')
         except:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if not (email and username and birth and pwd and email_code and sex):
+        if not (email and username):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if await self.email_is_registered(email):
             return self.raise_HTTP_error(403, self.EMAIL_REPETITION)
@@ -79,7 +79,7 @@ class RegisterHandler(BaseHandler):
                 await conn.execute(
                     UserPwdTable.insert().values(U_ID=u_id,
                                                  U_Pwd=password_encrypt(data_dict.get('pwd'),
-                                                                        self.PWD_SAULT)))
+                                                                        self.PWD_SALT)))
                 # aiomysql bug .commit()方法不存在
                 # 这里直接调用实现即可 or conn.execute('commit')
                 await conn._commit_impl()
@@ -123,5 +123,5 @@ class RegisterHandler(BaseHandler):
 from config import *
 
 default_handlers = [
-    (r"/api/v1/register/", RegisterHandler, dict(pwd_sault=PWD_SALT)),
+    (r"/api/v1/register/", RegisterHandler, dict(pwd_salt=PWD_SALT)),
 ]
