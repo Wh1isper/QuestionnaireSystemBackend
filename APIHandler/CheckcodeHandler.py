@@ -40,8 +40,8 @@ class EmailCheckcodeHandler(BaseHandler):
         if not email_check_code:
             return self.raise_HTTP_error(403, self.SEND_CHECK_CODE_FAIL)
         self.set_secure_cookie('email_check_code', email_check_code)
-        self.set_status(200)
-
+        if DEBUG:
+            print("DEBUG: Email Check Code Send:{}".format(email_check_code))
 
 default_handlers = [
     (r"/api/v1/checkCode/", CheckcodeHandler),

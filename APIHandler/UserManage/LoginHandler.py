@@ -4,7 +4,7 @@ import json
 from orm import UserInfoTable, UserPwdTable, UserLoginRecordTable
 from encrypt import password_encrypt
 import datetime
-from config import DEBUG
+from config import UNITTEST
 
 
 class LoginHandler(BaseHandler):
@@ -36,9 +36,9 @@ class LoginHandler(BaseHandler):
         self.set_secure_cookie("user", user_id, expires_days=1)
 
     def valid_checkcode(self, check_code: Text) -> bool:
-        # 验证码 DEBUG模式下无需验证
+        # 验证码 单元测试模式下无需验证
         CHECK_CODE = self.get_secure_cookie("check_code")
-        return DEBUG or (CHECK_CODE and CHECK_CODE.strip().lower() == check_code.strip().lower())
+        return UNITTEST or (CHECK_CODE and CHECK_CODE.strip().lower() == check_code.strip().lower())
 
     async def valid_user(self, email: Text, pwd: Text) -> Text or None:
         # 验证用户

@@ -5,7 +5,7 @@ import json
 import config
 import time
 
-config.DEBUG = True
+config.UNITTEST = True
 
 
 class TestUserRegister(BaseAsyncHTTPTestCase):

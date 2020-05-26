@@ -1,4 +1,5 @@
-DEBUG = True  # 需要http请求测试时开启，单元测试时请在单元测试内设置
+DEBUG = True  # 需要http请求测试时开启 显示DEBUG信息
+UNITTEST = False  # 单元测试时请在单元测试内设置
 ADMIN_ACOUNT = 'admin'
 ADMIN_PASSWORD = 'c214ab5d94c0a6655a8e890af8e4bb28966c96d7b627c01db2033d5ad255355c'  # password12345 由encrypt.password_encrypt生成
 # 密码加盐

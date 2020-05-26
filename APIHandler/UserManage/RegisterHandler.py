@@ -4,7 +4,7 @@ from orm import UserInfoTable, UserPwdTable, UserLoginRecordTable
 import json
 import datetime
 from typing import Text
-from config import PASSWORD_REG, DEBUG
+from config import PASSWORD_REG, UNITTEST
 import re
 
 
@@ -113,9 +113,9 @@ class RegisterHandler(BaseHandler):
         return bool(usr)
 
     def valid_email_checkcode(self, email_code: Text) -> bool:
-        # 验证邮箱验证码 DEBUG模式下无需验证
+        # 验证邮箱验证码 单元测试模式下无需验证
         EMAIL_CODE = self.get_secure_cookie('email_check_code')
-        return DEBUG or (EMAIL_CODE and EMAIL_CODE.strip().lower() == email_code.strip().lower())
+        return UNITTEST or (EMAIL_CODE and EMAIL_CODE.strip().lower() == email_code.strip().lower())
 
 
 
