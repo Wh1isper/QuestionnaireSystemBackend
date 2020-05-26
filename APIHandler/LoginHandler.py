@@ -44,16 +44,16 @@ class LoginHandler(BaseHandler):
     async def valid_user(self, email: Text, pwd: Text) -> Text or None:
         # 验证用户
         # 第一步验证邮箱是否注册，返回用户ID
-        # 第二部验证用户ID与密码是否对应
+        # 第二步验证用户ID与密码是否对应
         async def valid_email(email: Text) -> Text or None:
             engine = await self.get_engine()
             async with engine.acquire() as conn:
                 result = await conn.execute(UserInfoTable.select().where(UserInfoTable.c.U_Email == email))
                 userinfo = await result.fetchone()
-                if userinfo:
-                    return userinfo.U_ID
-                else:
-                    return None
+            if userinfo:
+                return userinfo.U_ID
+            else:
+                return None
 
         async def valid_pwd(uid: Text, pwd: Text) -> bool:
             engine = await self.get_engine()
@@ -63,7 +63,8 @@ class LoginHandler(BaseHandler):
                                             .where(UserPwdTable.c.U_ID == u_id)
                                             .where(UserPwdTable.c.U_Pwd == secure_pwd))
                 userinfo = await result.fetchone()
-                return bool(userinfo)
+                print()
+            return bool(userinfo)
 
         u_id = await valid_email(email)
         if not u_id:

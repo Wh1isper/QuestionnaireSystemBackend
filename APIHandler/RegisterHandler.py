@@ -67,10 +67,10 @@ class RegisterHandler(BaseHandler):
                 result = await conn.execute(
                     UserInfoTable.select().where(UserInfoTable.c.U_Email == data_dict.get('email')))
                 userinfo = await result.fetchone()
-                if userinfo:
-                    return userinfo.U_ID
-                else:
-                    return 0
+            if userinfo:
+                return userinfo.U_ID
+            else:
+                return 0
 
         async def register_user_pwd(data_dict: dict, u_id) -> bool:
             # 初始化用户密码，途中出错返回503，由tornado接管
@@ -110,7 +110,7 @@ class RegisterHandler(BaseHandler):
                                         .select()
                                         .where(UserInfoTable.c.U_Email == email))
             usr = await result.fetchone()
-            return bool(usr)
+        return bool(usr)
 
     def valid_email_checkcode(self, email_code: Text) -> bool:
         # 验证邮箱验证码 DEBUG模式下无需验证

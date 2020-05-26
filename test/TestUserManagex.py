@@ -98,7 +98,7 @@ class TestUserPwdChange(BaseAsyncHTTPTestCase):
         login_url = self.get_url(r"/api/v1/login/")
         body = {
             "email": "9573586@qq.com",
-            "pwd": "password123",
+            "pwd": "password12345",
             "check_code": "not test",
         }
         body = json.dumps(body)
@@ -109,8 +109,8 @@ class TestUserPwdChange(BaseAsyncHTTPTestCase):
 
         test_url = self.get_url(r"/api/v1/changePwd/")
         body = {
-            "old_pwd": "password123",
-            "pwd": "password12345"
+            "old_pwd": "password12345",
+            "pwd": "password123"
         }
         body = json.dumps(body)
         response = self.fetch(test_url, method='POST', body=body, headers=headers)

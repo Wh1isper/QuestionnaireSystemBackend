@@ -62,7 +62,7 @@ class UserChangePwdHandler(BaseHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if not await self.valid_pwd(old_pwd):
             return self.raise_HTTP_error(403, self.OLDPWD_ERROR)
-        if not self.valid_pwd(pwd):
+        if not self.valid_pwd_reg(pwd):
             return self.raise_HTTP_error(403, self.PWD_REG_CHECK_FAIL)
         await self.update_pwd(pwd)
 
@@ -73,6 +73,7 @@ class UserChangePwdHandler(BaseHandler):
             await conn.execute(UserPwdTable.update()
                                .where(UserPwdTable.c.U_ID == self.current_user)
                                .values(U_Pwd=secure_pwd))
+            await conn._commit_impl()
 
     async def valid_pwd(self, pwd: Text) -> bool:
         engine = await self.get_engine()
@@ -82,7 +83,7 @@ class UserChangePwdHandler(BaseHandler):
                                         .where(UserPwdTable.c.U_ID == self.current_user)
                                         .where(UserPwdTable.c.U_Pwd == secure_pwd))
             userinfo = await result.fetchone()
-            return bool(userinfo)
+        return bool(userinfo)
 
 
 from config import *
