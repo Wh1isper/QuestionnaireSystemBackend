@@ -15,16 +15,21 @@ def load_handlers(name):
     return mod.default_handlers
 
 
+class test_hanler(tornado.web.RequestHandler):
+    def get(self):
+        self.write(str([{"Q_ID": "1"}]))
+
+
 def make_app():
     settings = {
         "cookie_secret": COOKIE_SECRET,
         "xsrf_cookies": False,
     }
-    handlers = []
+    handlers = [(r'/', test_hanler), ]
     handlers.extend(load_handlers('APIHandler.CheckcodeHandler'))
-    handlers.extend(load_handlers('APIHandler.LoginHandler'))
-    handlers.extend(load_handlers('APIHandler.RegisterHandler'))
-    handlers.extend(load_handlers('APIHandler.UserInfoHandler'))
+    handlers.extend(load_handlers('APIHandler.UserManage.LoginHandler'))
+    handlers.extend(load_handlers('APIHandler.UserManage.RegisterHandler'))
+    handlers.extend(load_handlers('APIHandler.UserManage.UserInfoHandler'))
     return tornado.web.Application(handlers, **settings)
 
 
