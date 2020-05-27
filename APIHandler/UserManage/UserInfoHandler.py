@@ -6,9 +6,12 @@ from typing import Text
 from encrypt import password_encrypt
 import time
 
+
 class UserInfoHandler(BaseHandler):
     @authenticated
     async def get(self, *args, **kwargs):
+        # 获取用户信息
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E8%8E%B7%E5%8F%96api
         engine = await self.get_engine()
         async with engine.acquire() as conn:
             result = await conn.execute(UserInfoTable.select()
@@ -26,6 +29,8 @@ class UserInfoHandler(BaseHandler):
 
     @authenticated
     async def post(self, *args, **kwargs):
+        # 修改用户信息
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E4%BF%AE%E6%94%B9api
         try:
             json_data: dict = json.loads(self.request.body.decode('utf-8'))
         except json.decoder.JSONDecodeError:

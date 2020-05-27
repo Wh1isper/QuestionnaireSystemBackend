@@ -6,6 +6,7 @@ from ORM.orm import *
 from aioengine import *
 from sqlalchemy.sql import text
 import datetime
+import json
 
 async def test_table_orm():
     engine = await get_engine()
@@ -26,13 +27,22 @@ async def test_table_orm():
 
 
 async def test_query():
+    ret_list = []
     engine = await get_engine()
     async with engine.acquire() as conn:
-        result = await conn.execute(UserInfoTable.select()
-                                    .where(UserInfoTable.c.U_ID == 3))
-        user_info = await result.fetchone()
-    print(user_info)
-
+        result = await conn.execute(QuestionNaireInfoTable.select()
+                                    .where(QuestionNaireInfoTable.c.U_ID == 3))
+        questionnaire_info_list = await result.fetchall()
+    for questionnaire_info in questionnaire_info_list:
+        info_module = {
+            "Q_ID": questionnaire_info.QI_ID,
+            "Q_Name": questionnaire_info.QI_Name,
+            "Q_creat_date": time.mktime(questionnaire_info.QI_Creat_Date.timetuple()),
+            "Q_deadline_date": time.mktime(questionnaire_info.QI_Deadline_Date.timetuple()),
+            "state": questionnaire_info.QI_State,
+        }
+        ret_list.append(json.dumps(info_module))
+    print(ret_list)
 
 import time
 
