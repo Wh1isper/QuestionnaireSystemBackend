@@ -1,3 +1,5 @@
+# 服务器配置
+PORT = 8888
 DEBUG = True  # 需要http请求测试时开启 显示DEBUG信息
 UNITTEST = False  # 单元测试时请在单元测试内设置
 ADMIN_ACOUNT = 'admin'

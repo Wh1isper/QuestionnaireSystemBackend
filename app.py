@@ -25,6 +25,10 @@ def make_app():
         "cookie_secret": COOKIE_SECRET,
         "xsrf_cookies": False,
     }
+
+    # log info
+    print("...Creating Route")
+
     handlers = [(r'/', test_hanler), ]
     handlers.extend(load_handlers('APIHandler.CheckcodeHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.LoginHandler'))
@@ -32,11 +36,23 @@ def make_app():
     handlers.extend(load_handlers('APIHandler.UserManage.UserInfoHandler'))
     handlers.extend(load_handlers('APIHandler.UserQuestionnaire.UserQuestionnaireHandler'))
     handlers.extend(load_handlers('APIHandler.UserQuestionnaire.QuestionnaireRenameHandler'))
+    handlers.extend(load_handlers('APIHandler.Admin.AdminLoginHandler'))
+    handlers.extend(load_handlers('APIHandler.Admin.AdminManageHandler'))
+
+    # log info
+    for handler in handlers:
+        url = handler[0]
+        handler_class = handler[1]
+        print(url, handler_class)
 
     return tornado.web.Application(handlers, **settings)
 
 
 if __name__ == "__main__":
     app = make_app()
-    app.listen(8888)
+    app.listen(PORT)
+
+    # log info
+    print("servers running at 127.0.0.1:{}".format(PORT))
+
     tornado.ioloop.IOLoop.current().start()
