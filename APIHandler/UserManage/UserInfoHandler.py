@@ -73,19 +73,23 @@ class UserChangePwdHandler(BaseHandler):
 
     @authenticated
     async def post(self, *args, **kwargs):
+        # 验证密码成功后修改用户密码
         try:
             json_data: dict = json.loads(self.request.body.decode('utf-8'))
         except json.decoder.JSONDecodeError:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         old_pwd = json_data.get('old_pwd')
         pwd = json_data.get('pwd')
-
+        # 必填项确认
         if not (old_pwd and pwd):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
+        # 验证密码
         if not await self.valid_pwd(old_pwd):
             return self.raise_HTTP_error(403, self.OLDPWD_ERROR)
+        # 验证新密码强度
         if not self.valid_pwd_reg(pwd):
             return self.raise_HTTP_error(403, self.PWD_REG_CHECK_FAIL)
+        # 更新密码
         await self.update_pwd(pwd)
 
     async def update_pwd(self, pwd: Text) -> None:

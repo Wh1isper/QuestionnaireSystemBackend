@@ -3,7 +3,7 @@ from source import emailCheckCode, checkCode
 import io
 import time
 import json
-from config import DEBUG
+from config import DEBUG, CHECK_CODE_EXPIRE_TIME
 
 
 class CheckcodeHandler(BaseHandler):
@@ -16,7 +16,7 @@ class CheckcodeHandler(BaseHandler):
         self.set_header("Content-Type", "image/gif")
         self.write(imgio.getvalue())
         # 10分钟过期的cookie
-        self.set_secure_cookie("check_code", code, expires_days=None, expires=time.time() + 60 * 10)
+        self.set_secure_cookie("check_code", code, expires_days=None, expires=time.time() + CHECK_CODE_EXPIRE_TIME)
         if DEBUG:
             print("DEBUG: Check Code Get:{}".format(code))
 
@@ -39,9 +39,11 @@ class EmailCheckcodeHandler(BaseHandler):
         email_check_code = await emailCheckCode.send_email_checkcode(email)
         if not email_check_code:
             return self.raise_HTTP_error(403, self.SEND_CHECK_CODE_FAIL)
-        self.set_secure_cookie('email_check_code', email_check_code)
+        self.set_secure_cookie('email_check_code', email_check_code, expires_days=None,
+                               expires=time.time() + CHECK_CODE_EXPIRE_TIME)
         if DEBUG:
             print("DEBUG: Email Check Code Send:{}".format(email_check_code))
+
 
 default_handlers = [
     (r"/api/v1/checkCode/", CheckcodeHandler),

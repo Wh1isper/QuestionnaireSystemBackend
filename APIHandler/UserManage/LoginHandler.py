@@ -4,7 +4,7 @@ import json
 from orm import UserInfoTable, UserPwdTable, UserLoginRecordTable
 from encrypt import password_encrypt
 import datetime
-from config import UNITTEST
+from config import UNITTEST, USER_AUTH_EXPIRE_DAY
 
 
 class LoginHandler(BaseHandler):
@@ -25,15 +25,20 @@ class LoginHandler(BaseHandler):
         email = json_data.get('email')
         pwd = json_data.get('pwd')
         check_code = json_data.get('check_code')
+        # 必填项确认
         if not (email and pwd and check_code):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
+        # 验证码确认
         if not self.valid_checkcode(check_code):
             return self.raise_HTTP_error(403, self.CHECK_CODE_ERROR)
+        # 用户鉴权
         user_id = await self.valid_user(email, pwd)
         if not user_id:
             return self.raise_HTTP_error(403, self.USER_PWD_ERROR)
+        # 登录记录
         await self.login_record(user_id)
-        self.set_secure_cookie("user", user_id, expires_days=1)
+        # 发放权限
+        self.set_secure_cookie("user", user_id, expires_days=USER_AUTH_EXPIRE_DAY)
 
     def valid_checkcode(self, check_code: Text) -> bool:
         # 验证码 单元测试模式下无需验证

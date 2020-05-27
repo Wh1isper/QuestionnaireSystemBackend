@@ -24,6 +24,7 @@ class RegisterHandler(BaseHandler):
             json_data: dict = json.loads(self.request.body.decode('utf-8'))
         except json.decoder.JSONDecodeError:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
+        # 参数读取
         try:
             email = json_data.get('email')
             username = json_data.get('usrname')
@@ -33,14 +34,19 @@ class RegisterHandler(BaseHandler):
             sex = json_data.get('sex')
         except:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
+        # 必填项确认
         if not (email and username):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
+        # 重复注册确认
         if await self.email_is_registered(email):
             return self.raise_HTTP_error(403, self.EMAIL_REPETITION)
+        # 邮箱验证码确认
         if not self.valid_email_checkcode(email_code):
             return self.raise_HTTP_error(403, self.EMAIL_CHECK_CODE_ERROR)
+        # 密码强度确认
         if not self.valid_pwd_reg(pwd):
             return self.raise_HTTP_error(403, self.PWD_REG_CHECK_FAIL)
+        # 进入注册流程：
         usr_data_dict = {
             'email': email,
             'username': username,
@@ -51,6 +57,7 @@ class RegisterHandler(BaseHandler):
         await self.register(usr_data_dict)
 
     async def register(self, data_dict: dict) -> bool:
+        # 注册流程：初始化三个表，按以下顺序：UserInfo、UserPwd、UserLoginRecord
         async def register_user_info(data_dict: dict) -> int:
             # 初始化用户信息并返回自增主键U_ID，途中出错返回503，由tornado接管
             engine = await self.get_engine()
