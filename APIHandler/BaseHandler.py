@@ -48,11 +48,15 @@ class BaseHandler(RequestHandler):
         # self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
         self.set_header('Access-Control-Allow-Headers', '*')
 
-    def raise_HTTP_error(self, state_code: int, *msg_code: int or None) -> None:
-        if msg_code:
-            msg = {'msg': msg_code}
-            self.write(msg)
+    def raise_HTTP_error(self, state_code: int, msg_code=None) -> None:
         self.set_status(state_code)
+        self.send_error(state_code, msg=msg_code)
+
+    def write_error(self, status_code: int, **kwargs: Any) -> None:
+        self.write({
+            'status': status_code,
+            'msg': kwargs.get("msg")})
+        self.finish()
 
     async def get_engine(self) -> aiomysql.sa.engine.Engine:
         if not self.engine:
