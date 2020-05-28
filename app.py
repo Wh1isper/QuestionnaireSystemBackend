@@ -2,6 +2,10 @@ import sys
 
 sys.path.append('./source')
 sys.path.append('./APIHandler')
+sys.path.append('./APIHandler/Admin')
+sys.path.append('./APIHandler/QuestionnaireManage')
+sys.path.append('./APIHandler/UserManage')
+sys.path.append('./APIHandler/UserQuestionnaire')
 sys.path.append('./ORM')
 
 import tornado.ioloop
