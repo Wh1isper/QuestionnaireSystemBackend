@@ -1,4 +1,4 @@
-from BaseHandler import BaseHandler, authenticated
+from BaseHandler import BaseHandler, authenticated, xsrf
 from orm import UserInfoTable, UserPwdTable
 import json
 import datetime
@@ -70,6 +70,7 @@ class UserChangePwdHandler(BaseHandler):
         self.PWD_REG_CHECK_FAIL = 2
         self.PWD_SALT = pwd_salt
 
+    @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
         # 验证密码成功后修改用户密码

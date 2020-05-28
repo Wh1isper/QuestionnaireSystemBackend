@@ -1,4 +1,4 @@
-from BaseHandler import BaseHandler, authenticated
+from BaseHandler import BaseHandler, authenticated,xsrf
 from orm import QuestionNaireInfoTable
 import time
 import datetime
@@ -10,6 +10,7 @@ class QuestionnairePublishHandler(BaseHandler):
         self.QUESTIONNAIRE_NOT_FOUND = 1
         self.BAD_END_DATE = 2
 
+    @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
         # 发布问卷
@@ -67,6 +68,7 @@ class QuestionaireChangeStateHandler(BaseHandler):
         self.QUESTIONNAIRE_NOT_FOUND = 1
         self.STATE = state
 
+    @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
         # 1. 验证问卷所属权

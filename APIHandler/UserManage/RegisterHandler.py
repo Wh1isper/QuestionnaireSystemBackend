@@ -1,4 +1,4 @@
-from BaseHandler import BaseHandler
+from BaseHandler import BaseHandler,xsrf
 from encrypt import password_encrypt
 from orm import UserInfoTable, UserPwdTable, UserLoginRecordTable
 import json
@@ -16,6 +16,7 @@ class RegisterHandler(BaseHandler):
         self.PWD_REG_CHECK_FAIL = 3
         self.PWD_SALT = pwd_salt
 
+    @xsrf
     async def post(self, *args, **kwargs):
         # 用户注册 首先检查邮箱是否已经注册，再检查邮箱验证码和密码强度，最后写入数据库完成注册
         # 写入数据库时需要初始化三个表，按以下顺序：UserInfo、UserPwd、UserLoginRecord

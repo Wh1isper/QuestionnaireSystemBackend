@@ -6,7 +6,7 @@ from typing import Any
 import functools
 from typing import Text
 import re
-from config import PASSWORD_REG
+from config import PASSWORD_REG, DEBUG, UNITTEST
 from orm import *
 
 
@@ -26,6 +26,7 @@ class BaseHandler(RequestHandler):
         self.log_hook = None
         self.MISSING_DATA = 100
         self.engine = None
+        self.XSRF_NAME = '_xsrf'
 
     def get_current_user(self) -> Any:
         return int(self.get_secure_cookie('user'))
@@ -104,3 +105,14 @@ class BaseHandler(RequestHandler):
                                         .where(QuestionNaireInfoTable.c.QI_ID == q_id))
             questionnaire_info = await result.fetchone()
         return questionnaire_info.QI_State
+
+
+def xsrf(method):
+    # xsrf验证
+    @functools.wraps(method)
+    async def wrapper(self: BaseHandler, *args, **kwargs):
+        if not UNITTEST and not self.get_cookie(self.XSRF_NAME):
+            return self.raise_HTTP_error(403)
+        return await method(self, *args, **kwargs)
+
+    return wrapper

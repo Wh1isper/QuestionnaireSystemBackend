@@ -1,4 +1,4 @@
-from BaseHandler import BaseHandler, authenticated
+from BaseHandler import BaseHandler, authenticated, xsrf
 from typing import Text
 
 
@@ -8,6 +8,7 @@ class QuestionnaireSave(BaseHandler):
         self.QUESTIONNAIRE_NOT_FOUND = 1
         self.QUESTIONNAIRE_CANT_BE_CHANGED = 2
 
+    @xsrf
     @authenticated
     async def post(self):
         # 暂存问卷，不结构化存储，仅存储前端发回的数据

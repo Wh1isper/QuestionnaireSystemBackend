@@ -1,4 +1,4 @@
-from BaseHandler import BaseHandler
+from BaseHandler import BaseHandler, authenticated,xsrf
 from typing import Any
 
 
