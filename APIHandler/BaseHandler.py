@@ -7,7 +7,7 @@ import functools
 from typing import Text
 import re
 from config import PASSWORD_REG
-
+from orm import *
 
 
 class BaseHandler(RequestHandler):
@@ -18,6 +18,13 @@ class BaseHandler(RequestHandler):
 
     def get_current_user(self) -> Any:
         return self.get_secure_cookie('user')
+
+    def get_json_data(self) -> dict or None:
+        try:
+            json_data: dict = json.loads(self.request.body.decode('utf-8'))
+        except json.decoder.JSONDecodeError:
+            return None
+        return json_data
 
     def set_default_headers(self) -> None:
         self.set_header('Access-Control-Allow-Origin', '*')
@@ -56,7 +63,18 @@ class BaseHandler(RequestHandler):
             self.log()
 
     def valid_pwd_reg(self, pwd: Text) -> bool:
+        # 验证密码强度
         return bool(re.search(PASSWORD_REG, pwd))
+
+    async def valid_user_questionnaire_relation(self, q_id: int) -> bool:
+        # 鉴别用户是否是问卷的拥有者
+        engine = await self.get_engine()
+        async with engine.acquire() as conn:
+            result = await conn.execute(QuestionNaireInfoTable.select()
+                                        .where(QuestionNaireInfoTable.c.U_ID == self.current_user)
+                                        .where(QuestionNaireInfoTable.c.QI_ID == q_id))
+            questionnaire_info = await result.fetchone()
+        return bool(questionnaire_info)
 
 
 def authenticated(method):

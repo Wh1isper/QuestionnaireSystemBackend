@@ -18,9 +18,8 @@ class LoginHandler(BaseHandler):
         # 获取post请求数据 访问数据库进行用户验证并记录登录
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%94%A8%E6%88%B7%E7%99%BB%E5%BD%95api
         # 成功将set-cookie:user 存有加密后的用户id
-        try:
-            json_data: dict = json.loads(self.request.body.decode('utf-8'))
-        except json.decoder.JSONDecodeError:
+        json_data = self.get_json_data()
+        if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         email = json_data.get('email')
         pwd = json_data.get('pwd')

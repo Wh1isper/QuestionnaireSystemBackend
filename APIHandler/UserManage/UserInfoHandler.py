@@ -31,9 +31,8 @@ class UserInfoHandler(BaseHandler):
     async def post(self, *args, **kwargs):
         # 修改用户信息
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%94%A8%E6%88%B7%E4%BF%A1%E6%81%AF%E4%BF%AE%E6%94%B9api
-        try:
-            json_data: dict = json.loads(self.request.body.decode('utf-8'))
-        except json.decoder.JSONDecodeError:
+        json_data = self.get_json_data()
+        if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         try:
             username = json_data.get('usrname')
@@ -74,9 +73,8 @@ class UserChangePwdHandler(BaseHandler):
     @authenticated
     async def post(self, *args, **kwargs):
         # 验证密码成功后修改用户密码
-        try:
-            json_data: dict = json.loads(self.request.body.decode('utf-8'))
-        except json.decoder.JSONDecodeError:
+        json_data = self.get_json_data()
+        if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         old_pwd = json_data.get('old_pwd')
         pwd = json_data.get('pwd')

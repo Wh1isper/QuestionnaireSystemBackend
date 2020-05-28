@@ -17,9 +17,8 @@ class QuestionnaireRename(BaseHandler):
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%94%A8%E6%88%B7%E4%BF%AE%E6%94%B9%E9%97%AE%E5%8D%B7%E5%90%8Dapi
         # 1. 用户鉴权 确定是问卷的拥有者
         # 2. 根据问卷ID直接修改
-        try:
-            json_data: dict = json.loads(self.request.body.decode('utf-8'))
-        except json.decoder.JSONDecodeError:
+        json_data = self.get_json_data()
+        if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         q_id = json_data.get('Q_ID')
         q_name = json_data.get('Q_Name')
@@ -38,15 +37,6 @@ class QuestionnaireRename(BaseHandler):
                                .values(QI_Name=new_name))
             await conn._commit_impl()
 
-    async def valid_user_questionnaire_relation(self, q_id: int) -> bool:
-        # 鉴别用户是否是问卷的拥有者
-        engine = await self.get_engine()
-        async with engine.acquire() as conn:
-            result = await conn.execute(QuestionNaireInfoTable.select()
-                                        .where(QuestionNaireInfoTable.c.U_ID == self.current_user)
-                                        .where(QuestionNaireInfoTable.c.QI_ID == q_id))
-            questionnaire_info = await result.fetchone()
-        return bool(questionnaire_info)
 
 
 default_handlers = [
