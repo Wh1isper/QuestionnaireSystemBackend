@@ -38,15 +38,13 @@ class BaseHandler(RequestHandler):
         return json_data
 
     def get_str_from_secure_cookie(self, name: Text):
-        cookie_vaule = self.get_secure_cookie(name)
-        return str(cookie_vaule, encoding='utf-8') if cookie_vaule else None
+        cookie_value = self.get_secure_cookie(name)
+        return str(cookie_value, encoding='utf-8') if cookie_value else None
 
     def set_default_headers(self) -> None:
         self.set_header('Access-Control-Allow-Origin', '*')
         self.set_header('Access-Control-Allow-Headers', '*')
-        self.set_header('Access-Control-Max-Age', 1000)
         # self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-        self.set_header('Access-Control-Allow-Headers', '*')
 
     def raise_HTTP_error(self, state_code: int, msg_code=None) -> None:
         self.set_status(state_code)
