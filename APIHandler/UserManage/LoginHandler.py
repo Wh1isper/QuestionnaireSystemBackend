@@ -41,7 +41,7 @@ class LoginHandler(BaseHandler):
 
     def valid_checkcode(self, check_code: Text) -> bool:
         # 验证码 单元测试模式下无需验证
-        CHECK_CODE = self.get_secure_cookie("check_code")
+        CHECK_CODE = self.get_str_from_secure_cookie('check_code')
         return UNITTEST or (CHECK_CODE and CHECK_CODE.strip().lower() == check_code.strip().lower())
 
     async def valid_user(self, email: Text, pwd: Text) -> Text or None:

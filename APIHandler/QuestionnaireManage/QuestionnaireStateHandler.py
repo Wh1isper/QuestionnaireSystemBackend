@@ -56,7 +56,7 @@ class QuestionnairePublishHandler(BaseHandler):
         # todo 持久化存储问卷
         # 1. 从暂存文件中拉取问卷内容
         # 2. 做格式化存储
-        
+
 
         pass
 

@@ -13,7 +13,7 @@ from orm import *
 def authenticated(method):
     # 参考tornado.web.authenticated
     @functools.wraps(method)
-    async def wrapper(self: BaseHandler, *args, **kwargs):
+    async def wrapper(self: RequestHandler, *args, **kwargs):
         if not self.current_user:
             return self.raise_HTTP_error(401)
         return await method(self, *args, **kwargs)
@@ -28,7 +28,7 @@ class BaseHandler(RequestHandler):
         self.engine = None
 
     def get_current_user(self) -> Any:
-        return self.get_secure_cookie('user')
+        return int(self.get_secure_cookie('user'))
 
     def get_json_data(self) -> dict or None:
         try:
@@ -36,6 +36,10 @@ class BaseHandler(RequestHandler):
         except json.decoder.JSONDecodeError:
             return None
         return json_data
+
+    def get_str_from_secure_cookie(self, name: Text):
+        cookie_vaule = self.get_secure_cookie(name)
+        return str(cookie_vaule, encoding='utf-8') if cookie_vaule else None
 
     def set_default_headers(self) -> None:
         self.set_header('Access-Control-Allow-Origin', '*')

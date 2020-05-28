@@ -91,7 +91,7 @@ class RegisterHandler(BaseHandler):
                 await conn._commit_impl()
             return True
 
-        async def register_user_login_record(data_dict: dict, u_id) -> bool:
+        async def register_user_login_record(u_id) -> bool:
             # 初始化用户登录信息，途中出错返回503，由tornado接管
             engine = await self.get_engine()
             async with engine.acquire() as conn:
@@ -106,7 +106,7 @@ class RegisterHandler(BaseHandler):
         if not u_id:
             return False
         await register_user_pwd(data_dict, u_id)
-        await register_user_login_record(data_dict, u_id)
+        await register_user_login_record(u_id)
         return True
 
     async def email_is_registered(self, email: Text) -> bool:
@@ -120,10 +120,8 @@ class RegisterHandler(BaseHandler):
 
     def valid_email_checkcode(self, email_code: Text) -> bool:
         # 验证邮箱验证码 单元测试模式下无需验证
-        EMAIL_CODE = self.get_secure_cookie('email_check_code')
+        EMAIL_CODE = self.get_str_from_secure_cookie('email_check_code')
         return UNITTEST or (EMAIL_CODE and EMAIL_CODE.strip().lower() == email_code.strip().lower())
-
-
 
 
 from config import *
