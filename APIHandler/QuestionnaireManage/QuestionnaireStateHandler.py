@@ -1,10 +1,11 @@
-from BaseHandler import BaseHandler, authenticated,xsrf
+from BaseHandler import BaseHandler, authenticated, xsrf
 from orm import QuestionNaireInfoTable
 import time
 import datetime
+from QuestionnaireContentHandler import QuestionnaireContentHandler
 
 
-class QuestionnairePublishHandler(BaseHandler):
+class QuestionnairePublishHandler(QuestionnaireContentHandler):
     def initialize(self):
         super(QuestionnairePublishHandler, self).initialize()
         self.QUESTIONNAIRE_NOT_FOUND = 1
@@ -35,8 +36,8 @@ class QuestionnairePublishHandler(BaseHandler):
             'end_date': end_date
         }
 
-        await self.publish_quesitonnaire_info(questionnaire_module)
         await self.presistent_questionnaire(questionnaire_module)
+        await self.publish_quesitonnaire_info(questionnaire_module)
 
     def valid_date_duration(self, end_date: datetime.datetime) -> bool:
         # 问卷最长1-30天
@@ -57,9 +58,7 @@ class QuestionnairePublishHandler(BaseHandler):
         # todo 持久化存储问卷
         # 1. 从暂存文件中拉取问卷内容
         # 2. 做格式化存储
-
-
-        pass
+        json_data = await self.get_questionnaire_data(questionnaire_module.get('Q_ID'))
 
 
 class QuestionaireChangeStateHandler(BaseHandler):
@@ -72,7 +71,8 @@ class QuestionaireChangeStateHandler(BaseHandler):
     @authenticated
     async def post(self, *args, **kwargs):
         # 1. 验证问卷所属权
-        # 2. 修改问卷信息
+        # 2. 修改后问卷状态码不得变小（不得倒退）
+        # 3. 修改问卷信息
         json_data = self.get_json_data()
         if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
@@ -80,6 +80,8 @@ class QuestionaireChangeStateHandler(BaseHandler):
         if not q_id:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if not self.valid_user_questionnaire_relation(q_id):
+            return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
+        if self.STATE < self.get_questionnaire_state(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
 
         await self.change_questionnaire_state(q_id)

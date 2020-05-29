@@ -10,17 +10,6 @@ from config import PASSWORD_REG, DEBUG, UNITTEST
 from orm import *
 
 
-def authenticated(method):
-    # 参考tornado.web.authenticated
-    @functools.wraps(method)
-    async def wrapper(self: RequestHandler, *args, **kwargs):
-        if not self.current_user:
-            return self.raise_HTTP_error(401)
-        return await method(self, *args, **kwargs)
-
-    return wrapper
-
-
 class BaseHandler(RequestHandler):
     def initialize(self):
         self.log_hook = None
@@ -84,7 +73,6 @@ class BaseHandler(RequestHandler):
         # 验证密码强度
         return bool(re.search(PASSWORD_REG, pwd))
 
-    @authenticated
     async def valid_user_questionnaire_relation(self, q_id: int) -> bool:
         # 鉴别用户是否是问卷的拥有者
         engine = await self.get_engine()
@@ -95,7 +83,6 @@ class BaseHandler(RequestHandler):
             questionnaire_info = await result.fetchone()
         return bool(questionnaire_info)
 
-    @authenticated
     async def get_questionnaire_state(self, q_id: int) -> int:
         # 返回问卷状态
         engine = await self.get_engine()
@@ -105,6 +92,19 @@ class BaseHandler(RequestHandler):
                                         .where(QuestionNaireInfoTable.c.QI_ID == q_id))
             questionnaire_info = await result.fetchone()
         return questionnaire_info.QI_State
+
+
+
+
+def authenticated(method):
+    # 参考tornado.web.authenticated
+    @functools.wraps(method)
+    async def wrapper(self: BaseHandler, *args, **kwargs):
+        if not self.current_user:
+            return self.raise_HTTP_error(401)
+        return await method(self, *args, **kwargs)
+
+    return wrapper
 
 
 def xsrf(method):

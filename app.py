@@ -42,8 +42,8 @@ def make_app():
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireAnswerHandler'))
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireContentHandler'))
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireStateHandler'))
-    handlers.extend(load_handlers('APIHandler.UserQuestionnaire.UserQuestionnaireHandler'))
     handlers.extend(load_handlers('APIHandler.UserQuestionnaire.QuestionnaireRenameHandler'))
+    handlers.extend(load_handlers('APIHandler.UserQuestionnaire.UserQuestionnaireHandler'))
 
     # log info
     for handler in handlers:

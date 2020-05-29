@@ -2,14 +2,17 @@ from BaseHandler import BaseHandler
 
 
 class QuestionnaireSubmit(BaseHandler):
+    # todo 问卷提交
     pass
 
 
 class QuestionnaireResult(BaseHandler):
+    # todo 问卷结果拉取（全量）
     pass
 
 
 class QuestionnaireStatistics(BaseHandler):
+    # todo 问卷结果统计
     pass
 
 
