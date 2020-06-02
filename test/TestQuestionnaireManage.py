@@ -33,32 +33,103 @@ class TestQuestionnairePublish(BaseAsyncHTTPTestCase):
         self.assertEqual(response.code, 200)
 
 
-class TestQuestionSave(BaseAsyncHTTPTestCase):
-    pass
-
-
-class TestQuestionnaireDelete(BaseAsyncHTTPTestCase):
-    pass
+class TestQuestionnaireSave(BaseAsyncHTTPTestCase):
+    def test_questionnaire_save(self):
+        test_url = self.get_url(r"/api/v1/questionnairePublish/")
+        body = {
+            'Q_ID': 6,
+            'content': [
+                {
+                    'question_id': 1,
+                    'question_content': '问题1',
+                    'question_type': 0,
+                    'option': [
+                        {
+                            'option_id': 1,
+                            'option_content': "选项1"
+                        },
+                        {
+                            'option_id': 2,
+                            'option_content': "选项2"
+                        },
+                    ]
+                },
+                {
+                    'question_id': 2,
+                    'question_content': '问题2',
+                    'question_type': 2
+                }
+            ]
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=self.login())
+        self.assertEqual(response.code, 200)
 
 
 class TestQuestionnaireInactivate(BaseAsyncHTTPTestCase):
-    pass
+    def test_questionnaire_delete(self):
+        test_url = self.get_url(r"/api/v1/questionnaireDelete/")
+        body = {
+            'Q_ID': 1
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=self.login())
+        self.assertEqual(response.code, 200)
+
+
+class TestQuestionnaireDelete(BaseAsyncHTTPTestCase):
+    def test_questionnaire_delete(self):
+        test_url = self.get_url(r"/api/v1/questionnaireInactive/")
+        body = {
+            'Q_ID': 2
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=self.login())
+        self.assertEqual(response.code, 200)
 
 
 class TestQuestionnaireGet(BaseAsyncHTTPTestCase):
-    pass
+    def test_questionnaire_get(self):
+        test_url = self.get_url(r"/api/v1/questionnaireGet/?Q_ID=6")
+        response = self.fetch(test_url, method='GET', headers=self.login())
+        self.assertEqual(response.code, 200)
 
 
 class TestQuestionnaireSubmit(BaseAsyncHTTPTestCase):
-    pass
+    def test_question_submit(self):
+        test_url = self.get_url(r"/api/v1/questionnaireSubmit/")
+        body = {
+            'Q_ID': 6,
+            'content': [
+                {
+                    'question_id': 1,
+                    'question_type': 0,
+                    'option': [1],
+                },
+                {
+                    'question_id': 2,
+                    'question_type': 2,
+                    'content': 'test_content',
+                }
+            ]
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=self.login())
+        self.assertEqual(response.code, 200)
 
 
 class TestQuestionnaireResultGet(BaseAsyncHTTPTestCase):
-    pass
+    def test_questionnaire_result(self):
+        test_url = self.get_url(r"/api/v1/questionnaireResultGet/?Q_ID=6")
+        response = self.fetch(test_url, method='GET', headers=self.login())
+        self.assertEqual(response.code, 200)
 
 
 class TestQuestionnaireStatistics(BaseAsyncHTTPTestCase):
-    pass
+    def test_questionnaire_result(self):
+        test_url = self.get_url(r"/api/v1/questionnaireStatistics/?Q_ID=6")
+        response = self.fetch(test_url, method='GET', headers=self.login())
+        self.assertEqual(response.code, 200)
 
 
 if __name__ == '__main__':
