@@ -40,6 +40,7 @@ def make_app():
     handlers.extend(load_handlers('APIHandler.Admin.AdminLoginHandler'))
     handlers.extend(load_handlers('APIHandler.Admin.AdminManageHandler'))
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireAnswerHandler'))
+    handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireCreateHandler'))
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireContentHandler'))
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireStateHandler'))
     handlers.extend(load_handlers('APIHandler.UserQuestionnaire.QuestionnaireRenameHandler'))
