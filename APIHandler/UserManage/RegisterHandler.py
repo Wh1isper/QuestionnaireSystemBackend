@@ -1,4 +1,4 @@
-from BaseHandler import BaseHandler,xsrf
+from BaseHandler import BaseHandler, xsrf
 from encrypt import password_encrypt
 from orm import UserInfoTable, UserPwdTable, UserLoginRecordTable
 import json
@@ -40,6 +40,9 @@ class RegisterHandler(BaseHandler):
         # 重复注册确认
         if await self.email_is_registered(email):
             return self.raise_HTTP_error(403, self.EMAIL_REPETITION)
+        # 性别0/1确认
+        if not (sex == 0 or self == 1):
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         # 邮箱验证码确认
         if not self.valid_email_checkcode(email_code):
             return self.raise_HTTP_error(403, self.EMAIL_CHECK_CODE_ERROR)
@@ -54,60 +57,44 @@ class RegisterHandler(BaseHandler):
             'pwd': pwd,
             'sex': sex,
         }
-        await self.register(usr_data_dict)
+        if not await self.register(usr_data_dict):
+            return self.raise_HTTP_error(500)
 
     async def register(self, data_dict: dict) -> bool:
         # 注册流程：初始化三个表，按以下顺序：UserInfo、UserPwd、UserLoginRecord
-        async def register_user_info(data_dict: dict) -> int:
+        async def register_user_info(data_dict: dict, conn) -> int:
             # 初始化用户信息并返回自增主键U_ID，途中出错返回503，由tornado接管
-            engine = await self.get_engine()
-            async with engine.acquire() as conn:
-                await conn.execute(
-                    UserInfoTable.insert().values(U_Email=data_dict.get('email'),
-                                                  U_Name=data_dict.get('username'),
-                                                  U_Sex=data_dict.get('sex'),
-                                                  U_Birth=data_dict.get('birth'),
-                                                  U_State=0))
-                # aiomysql bug .commit()方法不存在
-                # 这里直接调用实现即可 or conn.execute('commit')
-                await conn._commit_impl()
-                result = await conn.execute(
-                    UserInfoTable.select().where(UserInfoTable.c.U_Email == data_dict.get('email')))
-                userinfo = await result.fetchone()
-            if userinfo:
-                return userinfo.U_ID
-            else:
-                return 0
+            await conn.execute(
+                UserInfoTable.insert().values(U_Email=data_dict.get('email'),
+                                              U_Name=data_dict.get('username'),
+                                              U_Sex=data_dict.get('sex'),
+                                              U_Birth=data_dict.get('birth'),
+                                              U_State=0))
+            result = await conn.execute("select @@IDENTITY")
+            u_id = (await result.fetchone())[0]
+            return u_id
 
-        async def register_user_pwd(data_dict: dict, u_id) -> bool:
+        async def register_user_pwd(data_dict: dict, u_id: int, conn) -> None:
             # 初始化用户密码，途中出错返回503，由tornado接管
-            engine = await self.get_engine()
-            async with engine.acquire() as conn:
-                await conn.execute(
-                    UserPwdTable.insert().values(U_ID=u_id,
-                                                 U_Pwd=password_encrypt(data_dict.get('pwd'),
-                                                                        self.PWD_SALT)))
-                # aiomysql bug .commit()方法不存在
-                # 这里直接调用实现即可 or conn.execute('commit')
-                await conn._commit_impl()
-            return True
+            await conn.execute(
+                UserPwdTable.insert().values(U_ID=u_id,
+                                             U_Pwd=password_encrypt(data_dict.get('pwd'),
+                                                                    self.PWD_SALT)))
 
-        async def register_user_login_record(u_id) -> bool:
+        async def register_user_login_record(u_id: int, conn) -> None:
             # 初始化用户登录信息，途中出错返回503，由tornado接管
-            engine = await self.get_engine()
-            async with engine.acquire() as conn:
-                await conn.execute(
-                    UserLoginRecordTable.insert().values(U_ID=u_id))
-                # aiomysql bug .commit()方法不存在
-                # 这里直接调用实现即可 or conn.execute('commit')
-                await conn._commit_impl()
-            return True
+            await conn.execute(
+                UserLoginRecordTable.insert().values(U_ID=u_id))
 
-        u_id = await register_user_info(data_dict)
-        if not u_id:
-            return False
-        await register_user_pwd(data_dict, u_id)
-        await register_user_login_record(u_id)
+        engine = await self.get_engine()
+        async with engine.acquire() as conn:
+            # 三表插入形成事务
+            u_id = await register_user_info(data_dict, conn)
+            if not u_id:
+                return False
+            await register_user_pwd(data_dict, u_id, conn)
+            await register_user_login_record(u_id, conn)
+            await conn._commit_impl()
         return True
 
     async def email_is_registered(self, email: Text) -> bool:
