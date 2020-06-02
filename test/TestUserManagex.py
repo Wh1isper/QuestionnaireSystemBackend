@@ -14,12 +14,12 @@ class TestUserRegister(BaseAsyncHTTPTestCase):
     def test_register(self):
         test_url = self.get_url(r'/api/v1/register/')
         body = {
-            "email": "9573586@qq.com",
-            "usrname": "jizs",
+            "email": "testemail@qq.com",
+            "usrname": "jizsss",
             "birth": time.time(),
             "pwd": "password123",
             "email_code": "not test",
-            "sex": 1
+            "sex": 0
         }
         body = json.dumps(body)
         response = self.fetch(test_url, method='POST', body=body)
