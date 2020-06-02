@@ -1,8 +1,8 @@
-from AdminBaseHandler import AdminBaseHandler
-from BaseHandler import authenticated
+from AdminBaseHandler import AdminBaseHandler,authenticated,xsrf
 
 
 class AdminUserStateChange(AdminBaseHandler):
+    @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
         # todo 管理员封禁/解封用户（根据email更改用户信息）
@@ -10,6 +10,7 @@ class AdminUserStateChange(AdminBaseHandler):
         pass
 
 class AdminQuestionnaireStateChange(AdminBaseHandler):
+    @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
         # todo 管理员封禁/解封问卷（根据Q_ID修改问卷信息）
@@ -17,6 +18,7 @@ class AdminQuestionnaireStateChange(AdminBaseHandler):
         pass
 
 class AdminGetUserList(AdminBaseHandler):
+    @xsrf
     @authenticated
     async def get(self,*args,**kwargs):
         # todo 管理员获取用户信息列表
@@ -24,6 +26,7 @@ class AdminGetUserList(AdminBaseHandler):
         pass
 
 class AdminGetQuestionnaireList(AdminBaseHandler):
+    @xsrf
     @authenticated
     async def get(self,*args,**kwargs):
         # todo 管理员获取问卷信息列表

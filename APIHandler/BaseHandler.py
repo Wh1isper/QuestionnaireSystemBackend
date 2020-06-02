@@ -6,19 +6,8 @@ from typing import Any
 import functools
 from typing import Text
 import re
-from config import PASSWORD_REG
+from config import PASSWORD_REG, DEBUG, UNITTEST
 from orm import *
-
-
-def authenticated(method):
-    # 参考tornado.web.authenticated
-    @functools.wraps(method)
-    async def wrapper(self: RequestHandler, *args, **kwargs):
-        if not self.current_user:
-            return self.raise_HTTP_error(401)
-        return await method(self, *args, **kwargs)
-
-    return wrapper
 
 
 class BaseHandler(RequestHandler):
@@ -26,6 +15,7 @@ class BaseHandler(RequestHandler):
         self.log_hook = None
         self.MISSING_DATA = 100
         self.engine = None
+        self.XSRF_NAME = '_xsrf'
 
     def get_current_user(self) -> Any:
         return int(self.get_secure_cookie('user'))
@@ -38,21 +28,23 @@ class BaseHandler(RequestHandler):
         return json_data
 
     def get_str_from_secure_cookie(self, name: Text):
-        cookie_vaule = self.get_secure_cookie(name)
-        return str(cookie_vaule, encoding='utf-8') if cookie_vaule else None
+        cookie_value = self.get_secure_cookie(name)
+        return str(cookie_value, encoding='utf-8') if cookie_value else None
 
     def set_default_headers(self) -> None:
         self.set_header('Access-Control-Allow-Origin', '*')
         self.set_header('Access-Control-Allow-Headers', '*')
-        self.set_header('Access-Control-Max-Age', 1000)
         # self.set_header('Access-Control-Allow-Methods', 'POST, GET, OPTIONS')
-        self.set_header('Access-Control-Allow-Headers', '*')
 
-    def raise_HTTP_error(self, state_code: int, *msg_code: int or None) -> None:
-        if msg_code:
-            msg = {'msg': msg_code}
-            self.write(msg)
+    def raise_HTTP_error(self, state_code: int, msg_code=None) -> None:
         self.set_status(state_code)
+        self.send_error(state_code, msg=msg_code)
+
+    def write_error(self, status_code: int, **kwargs: Any) -> None:
+        self.write({
+            'status': status_code,
+            'msg': kwargs.get("msg")})
+        self.finish()
 
     async def get_engine(self) -> aiomysql.sa.engine.Engine:
         if not self.engine:
@@ -81,7 +73,6 @@ class BaseHandler(RequestHandler):
         # 验证密码强度
         return bool(re.search(PASSWORD_REG, pwd))
 
-    @authenticated
     async def valid_user_questionnaire_relation(self, q_id: int) -> bool:
         # 鉴别用户是否是问卷的拥有者
         engine = await self.get_engine()
@@ -92,7 +83,6 @@ class BaseHandler(RequestHandler):
             questionnaire_info = await result.fetchone()
         return bool(questionnaire_info)
 
-    @authenticated
     async def get_questionnaire_state(self, q_id: int) -> int:
         # 返回问卷状态
         engine = await self.get_engine()
@@ -102,3 +92,27 @@ class BaseHandler(RequestHandler):
                                         .where(QuestionNaireInfoTable.c.QI_ID == q_id))
             questionnaire_info = await result.fetchone()
         return questionnaire_info.QI_State
+
+
+
+
+def authenticated(method):
+    # 参考tornado.web.authenticated
+    @functools.wraps(method)
+    async def wrapper(self: BaseHandler, *args, **kwargs):
+        if not self.current_user:
+            return self.raise_HTTP_error(401)
+        return await method(self, *args, **kwargs)
+
+    return wrapper
+
+
+def xsrf(method):
+    # xsrf验证
+    @functools.wraps(method)
+    async def wrapper(self: BaseHandler, *args, **kwargs):
+        if not UNITTEST and not self.get_cookie(self.XSRF_NAME):
+            return self.raise_HTTP_error(403)
+        return await method(self, *args, **kwargs)
+
+    return wrapper

@@ -19,7 +19,7 @@ def load_handlers(name):
     return mod.default_handlers
 
 
-class test_hanler(tornado.web.RequestHandler):
+class test_handler(tornado.web.RequestHandler):
     def get(self):
         self.write(self.get_query_argument("test"))
 
@@ -32,7 +32,7 @@ def make_app():
     # log info
     print("...init Route")
 
-    handlers = [(r'/', test_hanler), ]
+    handlers = [(r'/', test_handler), ]
     handlers.extend(load_handlers('APIHandler.CheckcodeHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.LoginHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.RegisterHandler'))
@@ -40,10 +40,11 @@ def make_app():
     handlers.extend(load_handlers('APIHandler.Admin.AdminLoginHandler'))
     handlers.extend(load_handlers('APIHandler.Admin.AdminManageHandler'))
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireAnswerHandler'))
+    handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireCreateHandler'))
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireContentHandler'))
     handlers.extend(load_handlers('APIHandler.QuestionnaireManage.QuestionnaireStateHandler'))
-    handlers.extend(load_handlers('APIHandler.UserQuestionnaire.UserQuestionnaireHandler'))
     handlers.extend(load_handlers('APIHandler.UserQuestionnaire.QuestionnaireRenameHandler'))
+    handlers.extend(load_handlers('APIHandler.UserQuestionnaire.UserQuestionnaireHandler'))
 
     # log info
     for handler in handlers:
