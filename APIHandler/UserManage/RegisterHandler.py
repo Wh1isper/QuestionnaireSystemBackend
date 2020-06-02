@@ -62,6 +62,7 @@ class RegisterHandler(BaseHandler):
 
     async def register(self, data_dict: dict) -> bool:
         # 注册流程：初始化三个表，按以下顺序：UserInfo、UserPwd、UserLoginRecord
+        # 下面嵌入了三个函数
         async def register_user_info(data_dict: dict, conn) -> int:
             # 初始化用户信息并返回自增主键U_ID，途中出错返回503，由tornado接管
             await conn.execute(
@@ -86,6 +87,7 @@ class RegisterHandler(BaseHandler):
             await conn.execute(
                 UserLoginRecordTable.insert().values(U_ID=u_id))
 
+        # func: register
         engine = await self.get_engine()
         async with engine.acquire() as conn:
             # 三表插入形成事务
