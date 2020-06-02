@@ -27,7 +27,7 @@ class QuestionnaireContentHandler(BaseHandler):
         # 1. 问卷未发布 is_questionnaire_not_published()
         # 2. 问卷已发布 is_questionnaire_published()
         # 3. 问卷停用 is_questionnaire_inactivate()
-        # 4. 问卷禁用 is_questionnaire_be_banned
+        # 4. 问卷禁用 is_questionnaire_be_banned()
         engine = await self.get_engine()
         async with engine.acquire() as conn:
             result = await conn.execute(QuestionNaireInfoTable.select()
@@ -63,11 +63,12 @@ class QuestionnaireSave(QuestionnaireContentHandler):
         q_id = json_data.get('Q_ID')
         if not q_id:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        q_content = json_data
         if not await self.valid_user_questionnaire_relation(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
-        if not self.is_questionnaire_not_published(q_id):
+        if not await self.is_questionnaire_not_published(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_CANT_BE_CHANGED)
+        # 转字符串存储
+        q_content = json.dumps(json_data)
         questionnaire_save_module = {
             'Q_ID': q_id,
             'Q_Content': q_content,
@@ -77,7 +78,7 @@ class QuestionnaireSave(QuestionnaireContentHandler):
 
     async def save_questionnaire(self, questionnaire_save_module: dict) -> bool:
         # 存入数据库
-        # todo 数据校验 P2
+        # 不进行数据校验，存在性能风险
         engine = await self.get_engine()
         async with engine.acquire() as conn:
             await conn.execute(QuestionNaireTempTable.update()
