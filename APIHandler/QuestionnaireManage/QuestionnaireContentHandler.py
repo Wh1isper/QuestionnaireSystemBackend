@@ -55,7 +55,7 @@ class QuestionnaireSave(QuestionnaireContentHandler):
     async def post(self, *args, **kwargs):
         # 暂存问卷，不结构化存储，仅存储前端发回的数据
         # 1. 验证问卷所属权
-        # 2. 验证问卷状态：未发布
+        # 2. 验证问卷状态
         # 3. 保存问卷
         json_data = self.get_json_data()
         if not json_data:
@@ -94,7 +94,7 @@ class QuestionnaireContent(QuestionnaireContentHandler):
         # 1. 验证问卷状态
         #   a. 未发布：仅所有者可查看
         #   b. 停用、已发布：所有人均可查看
-        #   c. 禁用/删除：所有人均不可查看（管理员除外）
+        #   c. 禁用/删除：所有人均不可查看
         # 2. 拉取并返回
         try:
             q_id = int(self.get_query_argument('Q_ID'))
@@ -102,9 +102,9 @@ class QuestionnaireContent(QuestionnaireContentHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if not q_id:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if await self._not_publish(q_id):
+        if self._not_publish(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
-        if await self.is_questionnaire_be_banned(q_id) and not self.is_current_user_admin():
+        if self.is_questionnaire_be_banned(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
         content = await self.get_questionnaire_data(q_id)
         self.write(content)
@@ -112,9 +112,6 @@ class QuestionnaireContent(QuestionnaireContentHandler):
     async def _not_publish(self, q_id: int) -> bool:
         return await self.is_questionnaire_not_published(q_id) and not await self.valid_user_questionnaire_relation(
             q_id)
-
-    def is_current_user_admin(self) -> bool:
-        return bool(self.get_secure_cookie('admin'))
 
 
 from config import *
