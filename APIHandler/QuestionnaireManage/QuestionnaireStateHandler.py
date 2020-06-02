@@ -1,8 +1,10 @@
 from BaseHandler import BaseHandler, authenticated, xsrf
-from orm import QuestionNaireInfoTable
+from orm import QuestionNaireInfoTable, QuestionNaireOptionTable, QuestionNaireQuestionTable
 import time
 import datetime
 from QuestionnaireContentHandler import QuestionnaireContentHandler
+import json
+from typing import List
 
 
 class QuestionnairePublishHandler(QuestionnaireContentHandler):
@@ -23,11 +25,13 @@ class QuestionnairePublishHandler(QuestionnaireContentHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         q_id = json_data.get('Q_ID')
         end_date = datetime.datetime.fromtimestamp(int(json_data.get('end_date')))
+        if not await self.is_questionnaire_not_published(q_id):
+            return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
         if not (q_id and end_date):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if not self.valid_user_questionnaire_relation(q_id):
+        if not await self.valid_user_questionnaire_relation(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
-        if self.valid_date_duration(end_date):
+        if not self.valid_date_duration(end_date):
             return self.raise_HTTP_error(403, self.BAD_END_DATE)
 
         questionnaire_module = {
@@ -36,12 +40,13 @@ class QuestionnairePublishHandler(QuestionnaireContentHandler):
             'end_date': end_date
         }
 
-        await self.presistent_questionnaire(questionnaire_module)
+        if not await self.presistent_questionnaire(questionnaire_module):
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         await self.publish_quesitonnaire_info(questionnaire_module)
 
     def valid_date_duration(self, end_date: datetime.datetime) -> bool:
         # 问卷最长1-30天
-        return datetime.date.today() < end_date < datetime.date.today() + datetime.timedelta(days=30)
+        return datetime.datetime.today() < end_date < datetime.datetime.today() + datetime.timedelta(days=30)
 
     async def publish_quesitonnaire_info(self, questionnaire_module: dict) -> None:
         # 这里不需要验证用户身份 之前已经验证过
@@ -54,11 +59,48 @@ class QuestionnairePublishHandler(QuestionnaireContentHandler):
                                QI_STATE=1)
             await conn._commit_impl()
 
-    async def presistent_questionnaire(self, questionnaire_module: dict) -> None:
-        # todo 持久化存储问卷
+    async def presistent_questionnaire(self, questionnaire_module: dict) -> bool or None:
+        # 持久化存储问卷
         # 1. 从暂存文件中拉取问卷内容
-        # 2. 做格式化存储
-        json_data = await self.get_questionnaire_data(questionnaire_module.get('Q_ID'))
+        # 2. 做格式化存储：分别对问题表和选项表进行插入
+        # todo 日志管理 此模块失败需要记录日志
+        q_id = questionnaire_module.get('Q_ID')
+        try:
+            # 可能存在未提交过保存的问卷
+            json_data = await self.get_questionnaire_data(q_id)
+        except AttributeError:
+            return False
+        content: List[dict] = json.loads(json_data).get('content')
+        engine = await self.get_engine()
+        async with engine.acquire() as conn:
+            # 创建事务
+            for question in content:
+                question_id = question.get('question_id')
+                question_content = question.get('question_content')
+                question_type = int(question.get('question_type'))
+                options: List[dict] = question.get('option') if question_type == 0 or question_type == 1 else None
+                # 对问题进行插入
+                await conn.execute(QuestionNaireQuestionTable.insert().values(
+                    QI_ID=q_id,
+                    QQ_ID=question_id,
+                    QQ_Type=question_type,
+                    QQ_Content=question_content
+                ))
+                if options:
+                    for option in options:
+                        option_id = option.get('option_id')
+                        option_content = option.get('option_content')
+                        # 对选项进行插入
+                        await conn.execute(QuestionNaireOptionTable.insert().values(
+                            QO_ID=option_id,
+                            QQ_ID=question_id,
+                            QI_ID=q_id,
+                            QO_Type=question_type,
+                            QO_Content=option_content
+                        ))
+            # 一并提交
+            await conn._commit_impl()
+        return True
 
 
 class QuestionaireChangeStateHandler(BaseHandler):

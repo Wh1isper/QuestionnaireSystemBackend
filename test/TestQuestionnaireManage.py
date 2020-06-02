@@ -25,7 +25,7 @@ class TestQuestionnairePublish(BaseAsyncHTTPTestCase):
     def test_questionnaire_publish(self):
         test_url = self.get_url(r"/api/v1/questionnairePublish/")
         body = {
-            "Q_ID": "2",
+            "Q_ID": "6",
             "end_date": (datetime.datetime.today() + datetime.timedelta(days=15)).timestamp()
         }
         body = json.dumps(body)
@@ -35,7 +35,7 @@ class TestQuestionnairePublish(BaseAsyncHTTPTestCase):
 
 class TestQuestionnaireSave(BaseAsyncHTTPTestCase):
     def test_questionnaire_save(self):
-        test_url = self.get_url(r"/api/v1/questionnairePublish/")
+        test_url = self.get_url(r"/api/v1/questionnaireSave/")
         body = {
             'Q_ID': 6,
             'content': [
