@@ -53,10 +53,10 @@ class QuestionnairePublishHandler(QuestionnaireContentHandler):
         # 更新两个信息：截至日期和问卷状态
         engine = await self.get_engine()
         async with engine.acquire() as conn:
-            await conn.execute(QuestionNaireInfoTable.update()
-                               .where(QuestionNaireInfoTable.c.QI_ID == questionnaire_module.get('Q_ID'))
-                               .values(QI_Deadline_Date=questionnaire_module.get('end_date')),
-                               QI_STATE=1)
+            await conn.execute(
+                QuestionNaireInfoTable.update()
+                    .where(QuestionNaireInfoTable.c.QI_ID == questionnaire_module.get('Q_ID'))
+                    .values(QI_Deadline_Date=questionnaire_module.get('end_date')), QI_STATE=1)
             await conn._commit_impl()
 
     async def presistent_questionnaire(self, questionnaire_module: dict) -> bool or None:
