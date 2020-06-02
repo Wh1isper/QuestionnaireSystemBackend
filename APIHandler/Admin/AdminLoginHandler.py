@@ -1,4 +1,4 @@
-from AdminBaseHandler import AdminBaseHandler, authenticated,xsrf
+from AdminBaseHandler import AdminBaseHandler, authenticated, xsrf
 
 
 class AdminLoginHandler(AdminBaseHandler):
