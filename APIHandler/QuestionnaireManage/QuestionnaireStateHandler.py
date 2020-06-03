@@ -2,12 +2,12 @@ from BaseHandler import BaseHandler, authenticated, xsrf
 from orm import QuestionNaireInfoTable, QuestionNaireOptionTable, QuestionNaireQuestionTable
 import time
 import datetime
-from QuestionnaireContentHandler import QuestionnaireContentHandler
+from QuestionnaireBaseHandler import QuestionnaireBaseHandler
 import json
 from typing import List
 
 
-class QuestionnairePublishHandler(QuestionnaireContentHandler):
+class QuestionnairePublishHandler(QuestionnaireBaseHandler):
     def initialize(self):
         super(QuestionnairePublishHandler, self).initialize()
         self.QUESTIONNAIRE_NOT_FOUND = 1
@@ -86,11 +86,12 @@ class QuestionnairePublishHandler(QuestionnaireContentHandler):
                     QQ_Type=question_type,
                     QQ_Content=question_content
                 ))
+                # 对选项进行插入
                 if options:
+                    # 单选/多选情况
                     for option in options:
                         option_id = option.get('option_id')
                         option_content = option.get('option_content')
-                        # 对选项进行插入
                         await conn.execute(QuestionNaireOptionTable.insert().values(
                             QO_ID=option_id,
                             QQ_ID=question_id,
@@ -98,12 +99,21 @@ class QuestionnairePublishHandler(QuestionnaireContentHandler):
                             QO_Type=question_type,
                             QO_Content=option_content
                         ))
+                else:
+                    # 填空情况
+                    await conn.execute(QuestionNaireOptionTable.insert().values(
+                        QO_ID=1,
+                        QQ_ID=question_id,
+                        QI_ID=q_id,
+                        QO_Type=question_type,
+                        QO_Content=None
+                    ))
             # 一并提交
             await conn._commit_impl()
         return True
 
 
-class QuestionaireChangeStateHandler(BaseHandler):
+class QuestionaireChangeStateHandler(QuestionnaireBaseHandler):
     def initialize(self, state):
         super(QuestionaireChangeStateHandler, self).initialize()
         self.QUESTIONNAIRE_NOT_FOUND = 1
@@ -123,7 +133,7 @@ class QuestionaireChangeStateHandler(BaseHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if not self.valid_user_questionnaire_relation(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
-        if self.STATE < self.get_questionnaire_state(q_id):
+        if self.STATE < await self.get_questionnaire_state(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
 
         await self.change_questionnaire_state(q_id)

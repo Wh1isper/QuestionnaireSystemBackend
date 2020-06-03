@@ -67,7 +67,6 @@ class LoginHandler(BaseHandler):
                                             .where(UserPwdTable.c.U_ID == u_id)
                                             .where(UserPwdTable.c.U_Pwd == secure_pwd))
                 userinfo = await result.fetchone()
-                print()
             return bool(userinfo)
 
         u_id = await valid_email(email)

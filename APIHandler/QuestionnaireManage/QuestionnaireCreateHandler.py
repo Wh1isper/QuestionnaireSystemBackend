@@ -1,10 +1,11 @@
-from BaseHandler import BaseHandler, authenticated, xsrf
+from BaseHandler import authenticated, xsrf
 from orm import QuestionNaireInfoTable, QuestionNaireTempTable
 import datetime
 from typing import Text
+from QuestionnaireBaseHandler import QuestionnaireBaseHandler
 
 
-class QuestionnaireCreateHandler(BaseHandler):
+class QuestionnaireCreateHandler(QuestionnaireBaseHandler):
     @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
