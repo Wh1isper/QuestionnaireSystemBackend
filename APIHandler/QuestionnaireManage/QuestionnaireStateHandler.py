@@ -56,7 +56,7 @@ class QuestionnairePublishHandler(QuestionnaireBaseHandler):
             await conn.execute(
                 QuestionNaireInfoTable.update()
                     .where(QuestionNaireInfoTable.c.QI_ID == questionnaire_module.get('Q_ID'))
-                    .values(QI_Deadline_Date=questionnaire_module.get('end_date')), QI_STATE=1)
+                    .values(QI_Deadline_Date=questionnaire_module.get('end_date'),QI_State=1))
             await conn._commit_impl()
 
     async def presistent_questionnaire(self, questionnaire_module: dict) -> bool or None:
@@ -144,7 +144,7 @@ class QuestionaireChangeStateHandler(QuestionnaireBaseHandler):
         async with engine.acquire() as conn:
             await conn.execute(QuestionNaireInfoTable.update()
                                .where(QuestionNaireInfoTable.c.QI_ID == q_id)
-                               .values(QI_STATE=self.STATE))
+                               .values(QI_State=self.STATE))
             await conn._commit_impl()
 
 

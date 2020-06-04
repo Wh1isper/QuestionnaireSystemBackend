@@ -1,9 +1,10 @@
 from BaseHandler import xsrf, authenticated
 from QuestionnaireBaseHandler import QuestionnaireBaseHandler
-from orm import AnswerOptionTable, QuestionNaireQuestionTable, QuestionNaireOptionTable
+from orm import AnswerOptionTable, AnswerRecorderTable, QuestionNaireQuestionTable, QuestionNaireOptionTable
 from typing import List, Text
 import csv
 import os
+from sqlalchemy import or_
 
 
 class QuestionnaireSubmitHandler(QuestionnaireBaseHandler):
@@ -17,7 +18,7 @@ class QuestionnaireSubmitHandler(QuestionnaireBaseHandler):
         # 问卷提交
         # 1. 解析数据
         # 2. 验证问卷是发布状态
-        # 3. 记录选项/填空项
+        # 3. 记录提交次数、记录选项/填空项
         # todo 日志管理 此模块失败需要记录日志
         json_data = self.get_json_data()
         if not json_data:
@@ -30,14 +31,18 @@ class QuestionnaireSubmitHandler(QuestionnaireBaseHandler):
 
     async def save_answer(self, json_data: dict) -> bool:
         # 记录选项，参考数据库设计
-        engine = self.get_engine()
-        q_id = json_data.get('q_id')
+        engine = await self.get_engine()
+        q_id = json_data.get('Q_ID')
         content = json_data.get('content')
         if not content:
             return False
         try:
             # 创建事务
             async with engine.acquire() as conn:
+                await conn.execute(AnswerRecorderTable.update().
+                                   where(AnswerRecorderTable.c.QI_ID == q_id).
+                                   values(Count=AnswerRecorderTable.c.Count + 1))
+
                 for question in content:
                     question_id = question.get('question_id')
                     question_type = int(question.get('question_type'))
@@ -65,46 +70,13 @@ class QuestionnaireSubmitHandler(QuestionnaireBaseHandler):
                         ))
                 # 一并提交
                 await conn._commit_impl()
-        except:
+        except Exception as e:
+            print(e)
             return False
         return True
 
 
 class QuestionnaireResultHandler(QuestionnaireBaseHandler):
-    def initialize(self):
-        super(QuestionnaireResultHandler, self).initialize()
-        self.question_map = {}
-        self.option_map = {}
-
-    async def get_question_content(self, qi_id, qq_id) -> Text:
-        content = self.question_map.get(str(qq_id))
-        if not content:
-            engine = self.get_engine()
-            async with engine.acquire() as conn:
-                result = await conn.execute(QuestionNaireQuestionTable.select()
-                                            .where(QuestionNaireQuestionTable.c.QQ_ID == qq_id)
-                                            .where(QuestionNaireQuestionTable.c.QI_ID == qi_id)
-                                            )
-                question_info = await result.fetchone()[0]
-            content = question_info.content
-            self.question_map[str(qq_id)] = content
-        return content
-
-    async def get_option_content(self, qi_id, qq_id, qo_id) -> Text:
-        content = self.option_map.get(str(qq_id) + ':' + str(qo_id))
-        if not content:
-            engine = self.get_engine()
-            async with engine.acquire() as conn:
-                result = await conn.execute(QuestionNaireOptionTable.select()
-                                            .where(QuestionNaireOptionTable.c.QO_ID == qo_id)
-                                            .where(QuestionNaireOptionTable.c.QI_ID == qi_id)
-                                            .where(QuestionNaireOptionTable.c.QQ_ID == qq_id)
-                                            )
-                question_info = await result.fetchone()[0]
-            content = question_info.content
-            self.option_map[str(qq_id) + ':' + str(qo_id)] = content
-        return content
-
     @xsrf
     @authenticated
     async def get(self, *args, **kwargs):
@@ -134,8 +106,8 @@ class QuestionnaireResultHandler(QuestionnaireBaseHandler):
 
     async def get_all_result(self, q_id) -> Text:
         # 将问卷结果写入缓存文件，返回文件名
-        # todo 缓存文件定期清理
-        engine = self.get_engine()
+        # todo 缓存文件定期清理/redis缓存
+        engine = await self.get_engine()
         async with engine.acquire() as conn:
             result = await conn.execute(AnswerOptionTable.select()
                                         .where(AnswerOptionTable.c.QI_ID == q_id))
@@ -145,13 +117,14 @@ class QuestionnaireResultHandler(QuestionnaireBaseHandler):
         file_name = './Temp/' + str(q_id) + '.csv'
         if os.path.exists(file_name):
             return file_name
-        with open(file_name, 'w', newline='', encoding='utf-8') as f:
+        with open(file_name, 'w+', newline='', encoding='utf-8') as f:
             writer = csv.DictWriter(f, csv_headers)
+            writer.writeheader()
             for option in options:
                 question_id = option.QQ_ID
                 question_content = await self.get_question_content(q_id, question_id)
                 option_id = option.QO_ID
-                option_content = await self.get_option_content(q_id, question_id, option)
+                option_content = await self.get_option_content(q_id, question_id, option_id)
                 question_type = option.QO_Type
                 content = '是' if question_type == 0 or question_type == 1 else option.AO_Content
                 writer.writerow({
@@ -168,8 +141,54 @@ class QuestionnaireStatisticsHandler(QuestionnaireBaseHandler):
     @xsrf
     @authenticated
     async def get(self, *args, **kwargs):
-        # todo 问卷结果统计
-        pass
+        # 问卷结果统计，支持实时查看
+        # 1. 获取问卷下所有题号->题目
+        # 2. 根据题号获取选项号->选项内容->计数
+        # todo redis缓存优化
+        try:
+            q_id = int(self.get_query_argument('Q_ID'))
+        except:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
+        if not await self.valid_user_questionnaire_relation(q_id):
+            return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
+
+        engine = await self.get_engine()
+        async with engine.acquire() as conn:
+            result = await conn.execute(AnswerOptionTable.select()
+                                        .where(AnswerOptionTable.c.QI_ID == q_id)
+                                        .where(or_(AnswerOptionTable.c.QO_Type == 0, AnswerOptionTable.c.QO_Type == 1))
+                                        .distinct()
+                                        .with_only_columns([AnswerOptionTable.c.QQ_ID])
+                                        )
+            qq_ids = await result.fetchall()
+
+        return_list = []
+        for qq_id in qq_ids:
+            qq_id = qq_id[0]
+            option_list = []
+            question_content = await self.get_question_content(q_id, qq_id)
+            async with engine.acquire() as conn:
+                result = await conn.execute(AnswerOptionTable.select()
+                                            .where(AnswerOptionTable.c.QI_ID == q_id)
+                                            .where(AnswerOptionTable.c.QQ_ID == qq_id)
+                                            )
+                qo_ids = await result.fetchall()
+            for qo_id in qo_ids:
+                qo_id = qo_id.QO_ID
+                option_content = await self.get_option_content(q_id, qq_id, qo_id)
+                count = await self.get_option_count(q_id, qq_id, qo_id)
+                option_list.append(
+                    {
+                        "option_content": option_content,
+                        "option_count": count
+                    }
+                )
+            question_module = {
+                "question_content": question_content,
+                "option": option_list
+            }
+            return_list.append(question_module)
+        self.write(str(return_list))
 
 
 from config import *
