@@ -6,6 +6,7 @@ import datetime
 from config import DEBUG
 import time
 
+
 class UserQuestionnaireListHandler(BaseHandler):
     @authenticated
     async def get(self, *args, **kwargs):
@@ -22,11 +23,11 @@ class UserQuestionnaireListHandler(BaseHandler):
             questionnaire_info_list = await result.fetchall()
         for questionnaire_info in questionnaire_info_list:
             info_module = {
-                "Q_ID":questionnaire_info.QI_ID,
-                "Q_Name":questionnaire_info.QI_Name,
-                "Q_creat_date":time.mktime(questionnaire_info.QI_Creat_Date.timetuple()),
-                "Q_deadline_date":time.mktime(questionnaire_info.QI_Deadline_Date.timetuple()),
-                "state":questionnaire_info.QI_State,
+                "Q_ID": questionnaire_info.QI_ID,
+                "Q_Name": questionnaire_info.QI_Name,
+                "Q_creat_date": time.mktime(questionnaire_info.QI_Creat_Date.timetuple()),
+                "Q_deadline_date": time.mktime(questionnaire_info.QI_Deadline_Date.timetuple()),
+                "state": questionnaire_info.QI_State,
             }
             ret_list.append(json.dumps(info_module))
         self.write(str(ret_list))

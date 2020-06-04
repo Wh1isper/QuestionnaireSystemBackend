@@ -85,6 +85,7 @@ class BaseHandler(RequestHandler):
 
     async def get_questionnaire_state(self, q_id: int) -> int:
         # 返回问卷状态
+        # 仅问卷拥有者可用
         engine = await self.get_engine()
         async with engine.acquire() as conn:
             result = await conn.execute(QuestionNaireInfoTable.select()
