@@ -1,12 +1,8 @@
-<<<<<<< HEAD
-from AdminBaseHandler import AdminBaseHandler
+from AdminBaseHandler import AdminBaseHandler, authenticated, xsrf
 from typing import Text
 from encrypt import password_encrypt
 from config import PWD_SALT
-=======
-from AdminBaseHandler import AdminBaseHandler, authenticated, xsrf
 
->>>>>>> e5ef2518f4676a806c6a281f85ba917128080ac5
 
 class AdminLoginHandler(AdminBaseHandler):
     def initialize(self, pwd_salt):
