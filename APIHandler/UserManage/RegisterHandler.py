@@ -21,6 +21,7 @@ class RegisterHandler(BaseHandler):
         # 用户注册 首先检查邮箱是否已经注册，再检查邮箱验证码和密码强度，最后写入数据库完成注册
         # 写入数据库时需要初始化三个表，按以下顺序：UserInfo、UserPwd、UserLoginRecord
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%94%A8%E6%88%B7%E6%B3%A8%E5%86%8Capi
+        # todo 日志功能，此模块失败需要记录日志
         json_data = self.get_json_data()
         if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)

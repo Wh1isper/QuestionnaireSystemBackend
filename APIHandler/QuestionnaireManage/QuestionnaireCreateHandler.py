@@ -1,16 +1,17 @@
-from BaseHandler import BaseHandler, authenticated, xsrf
-from orm import QuestionNaireInfoTable, QuestionNaireTempTable
+from BaseHandler import authenticated, xsrf
+from orm import QuestionNaireInfoTable, QuestionNaireTempTable, AnswerRecorderTable
 import datetime
 from typing import Text
+from QuestionnaireBaseHandler import QuestionnaireBaseHandler
 
 
-class QuestionnaireCreateHandler(BaseHandler):
+class QuestionnaireCreateHandler(QuestionnaireBaseHandler):
     @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
         # 问卷创建
         # 1. 获取问卷标题
-        # 2. 初始化问卷信息表QuestionNaireInfo, 问卷暂存表QuestionNaireTempTable
+        # 2. 初始化问卷信息表QuestionNaireInfo, 问卷暂存表QuestionNaireTempTable, 答卷信息表AnswerRecorderTable
         json_data = self.get_json_data()
         if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
@@ -33,6 +34,8 @@ class QuestionnaireCreateHandler(BaseHandler):
             q_id = (await result.fetchone())[0]
             await conn.execute(
                 QuestionNaireTempTable.insert().values(QI_ID=q_id))
+            await conn.execute(
+                AnswerRecorderTable.insert().values(QI_ID=q_id, Count=0))
             await conn._commit_impl()
         return q_id
 
