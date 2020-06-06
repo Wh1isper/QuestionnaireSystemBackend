@@ -22,3 +22,17 @@ class BaseAsyncHTTPTestCase(AsyncHTTPTestCase):
         headers = {"Cookie": cookie}
         self.assertEqual(response.code, 200)
         return headers
+
+    def admin_login(self) -> dict:
+        login_url = self.get_url(r'/api/v1/admin/login/')
+        body = {
+            "admin": "admin",
+            "pwd": 'password12345'
+        }
+        body = json.dumps(body)
+        response = self.fetch(login_url, method='POST', body=body)
+        self.assertEqual(response.code, 200)
+        self.assertIsNotNone(response.headers.get('Set-cookie'))
+        cookie = response.headers.get("Set-Cookie")
+        headers = {"Cookie": cookie}
+        return headers
