@@ -5,6 +5,7 @@ from typing import List, Text
 import csv
 import os
 from sqlalchemy import or_
+import json
 
 
 class QuestionnaireSubmitHandler(QuestionnaireBaseHandler):
@@ -104,7 +105,7 @@ class QuestionnaireResultHandler(QuestionnaireBaseHandler):
                 if not data:
                     break
                 self.write(data)
-        self.finish()
+        await self.finish()
 
     async def get_all_result(self, q_id) -> Text:
         # 将问卷结果写入缓存文件，返回文件名
@@ -180,17 +181,16 @@ class QuestionnaireStatisticsHandler(QuestionnaireBaseHandler):
                 qo_id = qo_id.QO_ID
                 option_content = await self.get_option_content(q_id, qq_id, qo_id)
                 count = await self.get_option_count(q_id, qq_id, qo_id)
-                option_list.append(
-                    {
-                        "option_content": option_content,
-                        "option_count": count
-                    }
+                option_list.append(json.dumps({
+                    "option_content": option_content,
+                    "option_count": count
+                })
                 )
             question_module = {
                 "question_content": question_content,
                 "option": option_list
             }
-            return_list.append(question_module)
+            return_list.append(json.dumps(question_module))
         self.write(str(return_list))
 
 

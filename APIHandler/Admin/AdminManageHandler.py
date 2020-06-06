@@ -4,6 +4,7 @@ from orm import QuestionNaireInfoTable
 import json
 
 
+
 class AdminUserStateChange(AdminBaseHandler):
     @xsrf
     @authenticated
@@ -65,7 +66,7 @@ class AdminGetUserList(AdminBaseHandler):
         # todo 管理员获取用户信息列表
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%AE%A1%E7%90%86%E5%91%98%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E5%88%97%E8%A1%A8api
         engine = await self.get_engine()
-        offset = self.get_argument('offset', '')
+        offset = self.get_query_argument('offset', "0")
         ret_list = []
         async with engine.acquire() as conn:
             result = await conn.execute(UserInfoTable.select()
@@ -88,23 +89,26 @@ class AdminGetQuestionnaireList(AdminBaseHandler):
         # todo 管理员获取问卷信息列表
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%AE%A1%E7%90%86%E5%91%98%E8%8E%B7%E5%8F%96%E9%97%AE%E5%8D%B7%E5%88%97%E8%A1%A8api
         engine = await self.get_engine()
-        offset = self.get_argument('offset', '')
+        offset = self.get_query_argument('offset', "0")
         ret_list = []
         async with engine.acquire() as conn:
             result = await conn.execute(QuestionNaireInfoTable.select()
                                         .limit(20).offset(offset))
             questionnaire_info_list = await result.fetchall()
+        u_id_list = []
         for questionnaire_info in questionnaire_info_list:
             questionnaire_module = {
                 'Q_ID': questionnaire_info.QI_ID,
                 'Q_name': questionnaire_info.QI_Name,
                 'user_ID': questionnaire_info.U_ID,
-                'user_name': questionnaire_info.U_Name,
+                # 'user_name': questionnaire_info.U_Name,
                 'Q_creat_date': questionnaire_info.QI_Creat_Date,
                 'Q_publish_date': questionnaire_info.QI_Publish_Date,
                 'state': questionnaire_info.QI_State,
             }
-            ret_list.append(json.dumps(questionnaire_module))
+            u_id_list.append(questionnaire_info.U_ID)
+            ret_list.append(questionnaire_module)
+        UserInfoTable.select().where(UserInfoTable.c.U_ID.in_(u_id_list))
         self.write(str(ret_list))
 
 
