@@ -4,14 +4,12 @@ import json
 from QuestionnaireBaseHandler import QuestionnaireBaseHandler
 
 
-
-
-
 class QuestionnaireSaveHandler(QuestionnaireBaseHandler):
     @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
         # 暂存问卷，不结构化存储，仅存储前端发回的数据
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%97%AE%E5%8D%B7%E4%BF%9D%E5%AD%98api
         # 1. 验证问卷所属权
         # 2. 验证问卷状态：未发布
         # 3. 保存问卷
@@ -50,6 +48,7 @@ class QuestionnaireContentHandler(QuestionnaireBaseHandler):
     @authenticated
     async def get(self, *args, **kwargs):
         # 拉取问卷内容，直接从暂存的信息中拉取
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%97%AE%E5%8D%B7%E5%86%85%E5%AE%B9%E8%8E%B7%E5%8F%96api
         # 1. 验证问卷状态
         #   a. 未发布：仅所有者可查看
         #   b. 停用、已发布：所有人均可查看

@@ -7,11 +7,12 @@ sys.path.append('./APIHandler/QuestionnaireManage')
 sys.path.append('./APIHandler/UserManage')
 sys.path.append('./APIHandler/UserQuestionnaire')
 sys.path.append('./ORM')
-
+import tornado
+import tornado.log
+from tornado.options import parse_command_line
 import tornado.ioloop
 import tornado.web
 from config import *
-
 
 def load_handlers(name):
     """Load the (URL pattern, handler) tuples for each component."""
@@ -56,6 +57,7 @@ def make_app():
 
 
 if __name__ == "__main__":
+    parse_command_line()
     app = make_app()
     app.listen(PORT)
 

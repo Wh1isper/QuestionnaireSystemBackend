@@ -16,6 +16,7 @@ class QuestionnaireSubmitHandler(QuestionnaireBaseHandler):
     @xsrf
     async def post(self, *arg, **kwargs):
         # 问卷提交
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%97%AE%E5%8D%B7%E6%8F%90%E4%BA%A4api
         # 1. 解析数据
         # 2. 验证问卷是发布状态
         # 3. 记录提交次数、记录选项/填空项
@@ -81,6 +82,7 @@ class QuestionnaireResultHandler(QuestionnaireBaseHandler):
     @authenticated
     async def get(self, *args, **kwargs):
         # 问卷结果全量导出，仅接受查询停用的问卷
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%97%AE%E5%8D%B7%E7%BB%93%E6%9E%9C%E5%85%A8%E9%87%8Fapi
         # 1. 用户鉴权
         # 2. 问卷状态检查
         # 3. 查找是否有csv缓存，若无，则将查询结果写入csv，返回文件名
@@ -142,6 +144,7 @@ class QuestionnaireStatisticsHandler(QuestionnaireBaseHandler):
     @authenticated
     async def get(self, *args, **kwargs):
         # 问卷结果统计，支持实时查看
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%97%AE%E5%8D%B7%E7%BB%93%E6%9E%9C%E7%BB%9F%E8%AE%A1api
         # 1. 获取问卷下所有题号->题目
         # 2. 根据题号获取选项号->选项内容->计数
         # todo redis缓存优化

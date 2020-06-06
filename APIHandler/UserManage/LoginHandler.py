@@ -52,7 +52,10 @@ class LoginHandler(BaseHandler):
         async def valid_email(email: Text) -> Text or None:
             engine = await self.get_engine()
             async with engine.acquire() as conn:
-                result = await conn.execute(UserInfoTable.select().where(UserInfoTable.c.U_Email == email))
+                result = await conn.execute(
+                    UserInfoTable.select()
+                        .where(UserInfoTable.c.U_Email == email)
+                        .where(UserInfoTable.c.U_State == 0))
                 userinfo = await result.fetchone()
             if userinfo:
                 return userinfo.U_ID

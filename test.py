@@ -51,19 +51,16 @@ async def login_record(user_id=1):
     ip = 1
     engine = await get_engine()
     async with engine.acquire() as conn:
-        result = await conn.execute(AnswerOptionTable.select()
-                                        .where(AnswerOptionTable.c.QI_ID == 6)
-                                        .distinct()
-                                        .with_only_columns([AnswerOptionTable.c.QQ_ID])
-                                        )
-        print(AnswerOptionTable.select()
-                                        .where(AnswerOptionTable.c.QI_ID == 6)
-                                        .distinct()
-                                        .with_only_columns([AnswerOptionTable.c.QQ_ID])
-              )
-        qqids = await result.fetchall()
-        for qqid in qqids:
-            print(qqid[0])
+        print(QuestionNaireInfoTable.select().limit(20).offset(0))
+        # result = await conn.execute(AnswerOptionTable.select()
+        #                                 .where(AnswerOptionTable.c.QI_ID == 6)
+        #                                 .distinct()
+        #                                 .with_only_columns([AnswerOptionTable.c.QQ_ID])
+        #                                 )
+
+        # qqids = await result.fetchall()
+        # for qqid in qqids:
+        #     print(qqid[0])
 
 if __name__ == '__main__':
     loop = asyncio.get_event_loop()

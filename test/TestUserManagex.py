@@ -4,7 +4,6 @@ from test.BaseAsyncHTTPTestCase import BaseAsyncHTTPTestCase
 import json
 import config
 import time
-
 config.UNITTEST = True
 
 

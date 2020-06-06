@@ -1,7 +1,8 @@
-from AdminBaseHandler import AdminBaseHandler,authenticated,xsrf
+from AdminBaseHandler import AdminBaseHandler, authenticated, xsrf
 from orm import UserInfoTable
 from orm import QuestionNaireInfoTable
 import json
+
 
 class AdminUserStateChange(AdminBaseHandler):
     @xsrf
@@ -18,18 +19,16 @@ class AdminUserStateChange(AdminBaseHandler):
             state = 0
         elif type == 1:
             state = 1
-        #更新状态
+        # 更新状态
         await self.update_state(email, state)
 
-    async def update_state(self, email, state:int) -> None:
+    async def update_state(self, email, state: int) -> None:
         engine = await self.get_engine()
         async with engine.acquire() as conn:
             await conn.execute(UserInfoTable.update()
                                .where(UserInfoTable.c.U_Email == email)
                                .values(U_State=state))
             await conn._commit_impl()
-
-
 
 
 class AdminQuestionnaireStateChange(AdminBaseHandler):
@@ -58,10 +57,11 @@ class AdminQuestionnaireStateChange(AdminBaseHandler):
                                .values(QI_State=state))
             await conn._commit_impl()
 
+
 class AdminGetUserList(AdminBaseHandler):
     @xsrf
     @authenticated
-    async def get(self,*args,**kwargs):
+    async def get(self, *args, **kwargs):
         # todo 管理员获取用户信息列表
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%AE%A1%E7%90%86%E5%91%98%E8%8E%B7%E5%8F%96%E7%94%A8%E6%88%B7%E5%88%97%E8%A1%A8api
         engine = await self.get_engine()
@@ -80,10 +80,11 @@ class AdminGetUserList(AdminBaseHandler):
             ret_list.append(json.dumps(user_module))
         self.write(str(ret_list))
 
+
 class AdminGetQuestionnaireList(AdminBaseHandler):
     @xsrf
     @authenticated
-    async def get(self,*args,**kwargs):
+    async def get(self, *args, **kwargs):
         # todo 管理员获取问卷信息列表
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%AE%A1%E7%90%86%E5%91%98%E8%8E%B7%E5%8F%96%E9%97%AE%E5%8D%B7%E5%88%97%E8%A1%A8api
         engine = await self.get_engine()
@@ -91,17 +92,17 @@ class AdminGetQuestionnaireList(AdminBaseHandler):
         ret_list = []
         async with engine.acquire() as conn:
             result = await conn.execute(QuestionNaireInfoTable.select()
-                                            .limit(20).offset(offset))
+                                        .limit(20).offset(offset))
             questionnaire_info_list = await result.fetchall()
         for questionnaire_info in questionnaire_info_list:
             questionnaire_module = {
-                'Q_ID':questionnaire_info.QI_ID,
-                'Q_name':questionnaire_info.QI_Name,
-                'user_ID':questionnaire_info.U_ID,
-                'user_name':questionnaire_info.U_Name,
+                'Q_ID': questionnaire_info.QI_ID,
+                'Q_name': questionnaire_info.QI_Name,
+                'user_ID': questionnaire_info.U_ID,
+                'user_name': questionnaire_info.U_Name,
                 'Q_creat_date': questionnaire_info.QI_Creat_Date,
-                'Q_publish_date':questionnaire_info.QI_Publish_Date ,
-                'state':questionnaire_info.QI_State,
+                'Q_publish_date': questionnaire_info.QI_Publish_Date,
+                'state': questionnaire_info.QI_State,
             }
             ret_list.append(json.dumps(questionnaire_module))
         self.write(str(ret_list))

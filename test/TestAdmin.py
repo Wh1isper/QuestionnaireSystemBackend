@@ -39,6 +39,7 @@ class TestAdminChangeUserState(BaseAsyncHTTPTestCase):
             "email": "9573586@qq.com",
             "type": 1
         }
+        test_body = json.dumps(test_body)
         response = self.fetch(test_url, method='POST', body=test_body, headers=headers)
         self.assertEqual(response.code, 200)
 
@@ -60,6 +61,7 @@ class TestAdminChangeUserState(BaseAsyncHTTPTestCase):
             "email": "9573586@qq.com",
             "type": 0
         }
+        test_body = json.dumps(test_body)
         response = self.fetch(test_url, method='POST', body=test_body, headers=headers)
         self.assertEqual(response.code, 200)
 
@@ -80,9 +82,10 @@ class TestAdminChangeQuestionaireState(BaseAsyncHTTPTestCase):
         headers = {"Cookie": cookie}
         test_url = self.get_url(r"/api/v1/admin/questionnaireStateChange/")
         test_body = {
-            "Q_ID": "9573586@qq.com",
+            "QI_ID": 1,
             "type": 1
         }
+        test_body = json.dumps(test_body)
         response = self.fetch(test_url, method='POST', body=test_body, headers=headers)
         self.assertEqual(response.code, 200)
 
@@ -101,9 +104,10 @@ class TestAdminChangeQuestionaireState(BaseAsyncHTTPTestCase):
         headers = {"Cookie": cookie}
         test_url = self.get_url(r"/api/v1/admin/questionnaireStateChange/")
         test_body = {
-            "Q_ID": "9573586@qq.com",
+            "QI_ID": 1,
             "type": 0
         }
+        test_body = json.dumps(test_body)
         response = self.fetch(test_url, method='POST', body=test_body, headers=headers)
         self.assertEqual(response.code, 200)
 

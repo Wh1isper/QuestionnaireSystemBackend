@@ -1,16 +1,18 @@
-from AdminBaseHandler import AdminBaseHandler, authenticated, xsrf
+from AdminBaseHandler import AdminBaseHandler
 from typing import Text
 from encrypt import password_encrypt
 from config import PWD_SALT
+from AdminBaseHandler import AdminBaseHandler, authenticated, xsrf
 
 
 class AdminLoginHandler(AdminBaseHandler):
     def initialize(self, pwd_salt):
+        super(AdminLoginHandler, self).initialize()
         self.PWD_SALT = pwd_salt
         self.USER_PWD_ERROR = 1
 
     @xsrf
-    def post(self, *args, **kwargs):
+    async def post(self, *args, **kwargs):
         # todo 管理员登录功能，cookie为关闭浏览器即删除
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%AE%A1%E7%90%86%E5%91%98%E7%99%BB%E5%BD%95api
         json_data = self.get_json_data()
@@ -26,7 +28,7 @@ class AdminLoginHandler(AdminBaseHandler):
         if not user_id:
             return self.raise_HTTP_error(403, self.USER_PWD_ERROR)
         # 发放权限,浏览器关闭cookie就过期
-        self.set_secure_cookie("admin", user_id)
+        self.set_secure_cookie("admin", user_id, expires_days=None)
 
     def valid_user(self, admin: Text, pwd: Text) -> Text or None:
         def valid_admin(admin: Text) -> Text or None:
@@ -35,7 +37,7 @@ class AdminLoginHandler(AdminBaseHandler):
             else:
                 return None
 
-        def valid_pwd(pwd:Text)->bool:
+        def valid_pwd(pwd: Text) -> bool:
             secure_pwd = password_encrypt(pwd, self.PWD_SALT)
             if secure_pwd == ADMIN_PASSWORD:
                 return True
@@ -49,12 +51,6 @@ class AdminLoginHandler(AdminBaseHandler):
         if not isvalid:
             return None
         return str(u_id)
-
-
-
-
-
-
 
 
 class AdminLogoutHandler(AdminBaseHandler):

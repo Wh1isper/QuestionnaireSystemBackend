@@ -17,6 +17,7 @@ class QuestionnairePublishHandler(QuestionnaireBaseHandler):
     @authenticated
     async def post(self, *args, **kwargs):
         # 发布问卷
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%97%AE%E5%8D%B7%E5%8F%91%E5%B8%83api
         # 1. 验证问卷所属权
         # 2. 修改问卷信息
         # 3. 持久化存储问卷
@@ -122,6 +123,7 @@ class QuestionaireChangeStateHandler(QuestionnaireBaseHandler):
     @xsrf
     @authenticated
     async def post(self, *args, **kwargs):
+        # 更改问卷状态，子类应继承并配置state
         # 1. 验证问卷所属权
         # 2. 修改后问卷状态码不得变小（不得倒退）
         # 3. 修改问卷信息

@@ -10,6 +10,7 @@ class QuestionnaireCreateHandler(QuestionnaireBaseHandler):
     @authenticated
     async def post(self, *args, **kwargs):
         # 问卷创建
+        # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%97%AE%E5%8D%B7%E5%88%9B%E5%BB%BAapi
         # 1. 获取问卷标题
         # 2. 初始化问卷信息表QuestionNaireInfo, 问卷暂存表QuestionNaireTempTable, 答卷信息表AnswerRecorderTable
         json_data = self.get_json_data()
