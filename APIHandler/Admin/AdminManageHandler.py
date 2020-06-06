@@ -2,6 +2,7 @@ from AdminBaseHandler import AdminBaseHandler, authenticated, xsrf
 from orm import UserInfoTable
 from orm import QuestionNaireInfoTable
 import json
+import time
 
 
 
@@ -16,6 +17,10 @@ class AdminUserStateChange(AdminBaseHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         email = json_data.get('email')
         type = json_data.get('type')
+        if not email :
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
+        if not type in [0, 1]:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         if type == 0:
             state = 0
         elif type == 1:
@@ -43,6 +48,10 @@ class AdminQuestionnaireStateChange(AdminBaseHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         Q_ID = json_data.get('Q_ID')
         type = json_data.get('type')
+        if not Q_ID:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
+        if not type in [0, 1]:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         if type == 0:
             state = 0
         elif type == 1:
@@ -102,13 +111,21 @@ class AdminGetQuestionnaireList(AdminBaseHandler):
                 'Q_name': questionnaire_info.QI_Name,
                 'user_ID': questionnaire_info.U_ID,
                 # 'user_name': questionnaire_info.U_Name,
-                'Q_creat_date': questionnaire_info.QI_Creat_Date,
-                'Q_publish_date': questionnaire_info.QI_Publish_Date,
+                'Q_creat_date': time.mktime(questionnaire_info.QI_Creat_Date.timetuple()),
+                'Q_publish_date': time.mktime(questionnaire_info.QI_Publish_Date.timetuple()),
                 'state': questionnaire_info.QI_State,
             }
             u_id_list.append(questionnaire_info.U_ID)
-            ret_list.append(questionnaire_module)
-        UserInfoTable.select().where(UserInfoTable.c.U_ID.in_(u_id_list))
+            ret_list.append(json.dumps(questionnaire_module))
+        async with engine.acquire() as conn:
+            result = await conn.execute(UserInfoTable.select()
+                                        .where(UserInfoTable.c.U_ID.in_(u_id_list)))
+            user_info_list = await result.fetchall()
+        for user_info in user_info_list:
+            questionnaire_module = {
+                'user_name': user_info.U_Name
+            }
+            ret_list.append(json.dumps(questionnaire_module))
         self.write(str(ret_list))
 
 

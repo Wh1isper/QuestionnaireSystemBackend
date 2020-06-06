@@ -46,13 +46,13 @@ class AdminLoginHandler(AdminBaseHandler):
             else:
                 return False
         # todo 变量命名
-        u_id = valid_admin(admin)
-        if not u_id:
+        admin_id = valid_admin(admin)
+        if not admin_id:
             return None
         isvalid = valid_pwd(pwd)
         if not isvalid:
             return None
-        return str(u_id)
+        return str(admin_id)
 
 
 class AdminLogoutHandler(AdminBaseHandler):
