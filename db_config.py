@@ -1,5 +1,5 @@
 USERNAME = "root"
-PASSWORD = "1024"
+PASSWORD = "xxxxxxx"
 DBNAME = "QuestionnaireSystem"
 HOST = "127.0.0.1"
 PORT = "3306"
