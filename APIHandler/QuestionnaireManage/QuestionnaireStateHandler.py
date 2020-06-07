@@ -133,7 +133,7 @@ class QuestionaireChangeStateHandler(QuestionnaireBaseHandler):
         q_id = json_data.get('Q_ID')
         if not q_id:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if not self.valid_user_questionnaire_relation(q_id):
+        if not await self.valid_user_questionnaire_relation(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
         if self.STATE < await self.get_questionnaire_state(q_id):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)

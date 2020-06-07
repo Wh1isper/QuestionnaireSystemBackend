@@ -5,7 +5,6 @@ import json
 import time
 
 
-
 class AdminUserStateChange(AdminBaseHandler):
     @xsrf
     @authenticated
@@ -19,14 +18,14 @@ class AdminUserStateChange(AdminBaseHandler):
         if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         email = json_data.get('email')
-        type = json_data.get('type')
-        if not email :
+        op_type = json_data.get('type')
+        if not email:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if not type in [0, 1]:
+        if not op_type in [0, 1]:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if type == 0:
+        if op_type == 0:
             state = 0
-        elif type == 1:
+        elif op_type == 1:
             state = 1
         # 更新状态
         await self.update_state(email, state)
@@ -53,14 +52,14 @@ class AdminQuestionnaireStateChange(AdminBaseHandler):
         if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         Q_ID = json_data.get('Q_ID')
-        type = json_data.get('type')
+        op_type = json_data.get('type')
         if not Q_ID:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if not type in [0, 1]:
+        if not op_type in [0, 1]:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if type == 0:
+        if op_type == 0:
             state = 0
-        elif type == 1:
+        elif op_type == 1:
             state = 3
         # 更新状态
         await self.update_state(Q_ID, state)
@@ -118,26 +117,28 @@ class AdminGetQuestionnaireList(AdminBaseHandler):
                                         .limit(20).offset(offset))
             questionnaire_info_list = await result.fetchall()
         u_id_list = []
+        ques_info_list = []
         for questionnaire_info in questionnaire_info_list:
             questionnaire_module = {
                 'Q_ID': questionnaire_info.QI_ID,
                 'Q_name': questionnaire_info.QI_Name,
                 'user_ID': questionnaire_info.U_ID,
                 'Q_creat_date': time.mktime(questionnaire_info.QI_Creat_Date.timetuple()),
-                'Q_publish_date': time.mktime(questionnaire_info.QI_Publish_Date.timetuple()),
+                'Q_deadline_date': time.mktime(questionnaire_info.QI_Deadline_Date.timetuple()),
                 'state': questionnaire_info.QI_State,
             }
             u_id_list.append(questionnaire_info.U_ID)
-            ret_list.append(json.dumps(questionnaire_module))
+            ques_info_list.append(questionnaire_module)
         async with engine.acquire() as conn:
             result = await conn.execute(UserInfoTable.select()
                                         .where(UserInfoTable.c.U_ID.in_(u_id_list)))
             user_info_list = await result.fetchall()
+        u_id_to_u_name_map = {}
         for user_info in user_info_list:
-            questionnaire_module = {
-                'user_name': user_info.U_Name
-            }
-            ret_list.append(json.dumps(questionnaire_module))
+            u_id_to_u_name_map[user_info.U_ID] = user_info.U_Name
+        for ques_info in ques_info_list:
+            ques_info['user_name'] = u_id_to_u_name_map[ques_info['user_ID']]
+            ret_list.append(json.dumps(ques_info))
         self.write(str(ret_list))
 
 

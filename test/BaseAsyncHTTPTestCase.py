@@ -34,6 +34,20 @@ class BaseAsyncHTTPTestCase(AsyncHTTPTestCase):
         self.assertEqual(response.code, 200)
         return headers
 
+    def login_other_acount(self):
+        login_url = self.get_url(r"/api/v1/login/")
+        body = {
+            "email": "testemail@qq.com",
+            "pwd": "password123",
+            "check_code": "not test",
+        }
+        body = json.dumps(body)
+        response = self.fetch(login_url, method='POST', body=body)
+        cookie = response.headers.get("Set-Cookie")
+        headers = {"Cookie": cookie}
+        self.assertEqual(response.code, 200)
+        return headers
+
     def admin_login(self) -> dict:
         login_url = self.get_url(r'/api/v1/admin/login/')
         body = {

@@ -32,7 +32,7 @@ class RegisterHandler(BaseHandler):
             birth = datetime.datetime.fromtimestamp(int(json_data.get('birth')))
             pwd = json_data.get('pwd')
             email_code = json_data.get('email_code')
-            sex = json_data.get('sex')
+            sex = int(json_data.get('sex'))
         except:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         # 必填项确认
@@ -42,7 +42,7 @@ class RegisterHandler(BaseHandler):
         if await self.email_is_registered(email):
             return self.raise_HTTP_error(403, self.EMAIL_REPETITION)
         # 性别0/1确认
-        if not (sex == 0 or self == 1):
+        if not (sex == 0 or sex == 1):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         # 邮箱验证码确认
         if not self.valid_email_checkcode(email_code):

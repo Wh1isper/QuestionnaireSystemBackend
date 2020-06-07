@@ -59,6 +59,37 @@ class TestQuestionnaireSave(BaseAsyncHTTPTestCase):
         response = self.fetch(test_url, method='POST', body=body, headers=self.login())
         self.assertEqual(response.code, 200)
 
+    def test_auth_control(self):
+        test_url = self.get_url(r"/api/v1/questionnaireSave/")
+        body = {
+            'Q_ID': 8,
+            'content': [
+                {
+                    'question_id': 1,
+                    'question_content': '问题1',
+                    'question_type': 0,
+                    'option': [
+                        {
+                            'option_id': 1,
+                            'option_content': "选项1"
+                        },
+                        {
+                            'option_id': 2,
+                            'option_content': "选项2"
+                        },
+                    ]
+                },
+                {
+                    'question_id': 2,
+                    'question_content': '问题2',
+                    'question_type': 2
+                }
+            ]
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=self.login_other_acount())
+        self.assertEqual(response.code, 403)
+
 
 class TestQuestionnairePublish(BaseAsyncHTTPTestCase):
     def test_questionnaire_publish(self):
@@ -75,6 +106,16 @@ class TestQuestionnairePublish(BaseAsyncHTTPTestCase):
         response = self.fetch(test_url, method='POST', body=body, headers=self.login())
         self.assertEqual(response.code, 200)
 
+    def test_auth_control(self):
+        test_url = self.get_url(r"/api/v1/questionnairePublish/")
+        body = {
+            "Q_ID": "8",
+            "end_date": (datetime.datetime.today() + datetime.timedelta(days=15)).timestamp()
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=self.login_other_acount())
+        self.assertEqual(response.code, 403)
+
 
 class TestQuestionnaireInactivate(BaseAsyncHTTPTestCase):
     def test_questionnaire_delete(self):
@@ -88,6 +129,15 @@ class TestQuestionnaireInactivate(BaseAsyncHTTPTestCase):
         response = self.fetch(test_url, method='POST', body=body, headers=self.login())
         self.assertEqual(response.code, 200)
 
+    def test_auth_control(self):
+        test_url = self.get_url(r"/api/v1/questionnaireInactive/")
+        body = {
+            'Q_ID': 8
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=self.login_other_acount())
+        self.assertEqual(response.code, 403)
+
 
 class TestQuestionnaireDelete(BaseAsyncHTTPTestCase):
     def test_questionnaire_delete(self):
@@ -98,6 +148,15 @@ class TestQuestionnaireDelete(BaseAsyncHTTPTestCase):
         body = json.dumps(body)
         response = self.fetch(test_url, method='POST', body=body, headers=self.login())
         self.assertEqual(response.code, 200)
+
+    def test_auth_control(self):
+        test_url = self.get_url(r"/api/v1/questionnaireDelete/")
+        body = {
+            'Q_ID': 2
+        }
+        body = json.dumps(body)
+        response = self.fetch(test_url, method='POST', body=body, headers=self.login_other_acount())
+        self.assertEqual(response.code, 403)
 
 
 class TestQuestionnaireGet(BaseAsyncHTTPTestCase):
