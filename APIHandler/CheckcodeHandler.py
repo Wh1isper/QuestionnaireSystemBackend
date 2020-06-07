@@ -1,4 +1,4 @@
-from BaseHandler import BaseHandler
+from BaseHandler import BaseHandler,xsrf
 from source import emailCheckCode, checkCode
 import io
 import time
@@ -7,6 +7,7 @@ from config import DEBUG, CHECK_CODE_EXPIRE_TIME
 
 
 class CheckcodeHandler(BaseHandler):
+    @xsrf
     def get(self, *args, **kwargs):
         # 返回验证码 set-cookie:check_code为验证码
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E7%99%BB%E5%BD%95%E9%AA%8C%E8%AF%81%E7%A0%81api
@@ -25,7 +26,7 @@ class EmailCheckcodeHandler(BaseHandler):
     def initialize(self):
         super(EmailCheckcodeHandler, self).initialize()
         self.SEND_CHECK_CODE_FAIL = 1
-
+    @xsrf
     async def post(self, *args, **kwargs):
         # 向邮箱发送验证码，set-cookie:email_check_code为验证码内容
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%82%AE%E7%AE%B1%E9%AA%8C%E8%AF%81%E7%A0%81api
