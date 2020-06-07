@@ -83,7 +83,13 @@ class AdminGetUserList(AdminBaseHandler):
         # 2. 查询数据库 获取用户信息
         # 3. 打包返回
         engine = await self.get_engine()
-        offset = self.get_query_argument('offset', "0")
+        try:
+            offset = int(self.get_query_argument('offset', "0"))
+        except ValueError:
+            return self.raise_HTTP_error(403,self.MISSING_DATA)
+        if offset < 0:
+            return self.raise_HTTP_error(403,self.MISSING_DATA)
+
         ret_list = []
         async with engine.acquire() as conn:
             result = await conn.execute(UserInfoTable.select()
@@ -110,7 +116,12 @@ class AdminGetQuestionnaireList(AdminBaseHandler):
         # 3. 通过问卷信息里的 U_ID 查询用户信息数据库 获取用户名U_Name
         # 4. 打包返回
         engine = await self.get_engine()
-        offset = self.get_query_argument('offset', "0")
+        try:
+            offset = int(self.get_query_argument('offset', "0"))
+        except ValueError:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
+        if offset < 0:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         ret_list = []
         async with engine.acquire() as conn:
             result = await conn.execute(QuestionNaireInfoTable.select()
