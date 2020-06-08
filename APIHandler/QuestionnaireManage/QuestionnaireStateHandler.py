@@ -57,7 +57,7 @@ class QuestionnairePublishHandler(QuestionnaireBaseHandler):
             await conn.execute(
                 QuestionNaireInfoTable.update()
                     .where(QuestionNaireInfoTable.c.QI_ID == questionnaire_module.get('Q_ID'))
-                    .values(QI_Deadline_Date=questionnaire_module.get('end_date'),QI_State=1))
+                    .values(QI_Deadline_Date=questionnaire_module.get('end_date'),QI_State=self.Q_STATE_PUBLISHED))
             await conn._commit_impl()
 
     async def presistent_questionnaire(self, questionnaire_module: dict) -> bool or None:
@@ -151,19 +151,19 @@ class QuestionaireChangeStateHandler(QuestionnaireBaseHandler):
 
 
 class QuestionnaireDeleteHandler(QuestionaireChangeStateHandler):
-    def initialize(self, state):
-        super(QuestionnaireDeleteHandler, self).initialize(state)
+    def initialize(self):
+        super(QuestionnaireDeleteHandler, self).initialize(self.Q_STATE_BAN)
 
 
 class QuestionnaireInactiveHandler(QuestionaireChangeStateHandler):
-    def initialize(self, state):
-        super(QuestionnaireInactiveHandler, self).initialize(state)
+    def initialize(self):
+        super(QuestionnaireInactiveHandler, self).initialize(self.Q_STATE_INACTIVATE)
 
 
 from config import *
 
 default_handlers = [
     (r"/api/v1/questionnairePublish/", QuestionnairePublishHandler),
-    (r"/api/v1/questionnaireDelete/", QuestionnaireDeleteHandler, dict(state=3)),
-    (r"/api/v1/questionnaireInactive/", QuestionnaireInactiveHandler, dict(state=2)),
+    (r"/api/v1/questionnaireDelete/", QuestionnaireDeleteHandler),
+    (r"/api/v1/questionnaireInactive/", QuestionnaireInactiveHandler),
 ]

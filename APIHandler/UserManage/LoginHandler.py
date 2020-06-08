@@ -55,7 +55,7 @@ class LoginHandler(BaseHandler):
                 result = await conn.execute(
                     UserInfoTable.select()
                         .where(UserInfoTable.c.U_Email == email)
-                        .where(UserInfoTable.c.U_State == 0))
+                        .where(UserInfoTable.c.U_State == self.USER_STATE_NORMAL))
                 userinfo = await result.fetchone()
             if userinfo:
                 return userinfo.U_ID

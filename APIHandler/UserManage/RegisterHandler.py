@@ -71,7 +71,7 @@ class RegisterHandler(BaseHandler):
                                               U_Name=data_dict.get('username'),
                                               U_Sex=data_dict.get('sex'),
                                               U_Birth=data_dict.get('birth'),
-                                              U_State=0))
+                                              U_State=self.USER_STATE_NORMAL))
             result = await conn.execute("select @@IDENTITY")
             u_id = (await result.fetchone())[0]
             return u_id

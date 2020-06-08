@@ -29,7 +29,7 @@ class QuestionnaireCreateHandler(QuestionnaireBaseHandler):
                 QuestionNaireInfoTable.insert().values(QI_Name=title,
                                                        U_ID=self.current_user,
                                                        QI_Creat_Date=datetime.datetime.today(),
-                                                       QI_State=0,
+                                                       QI_State=self.Q_STATE_UNPUBLISH,
                                                        QI_Limit_Type=0))
             result = await conn.execute("select @@IDENTITY")
             q_id = (await result.fetchone())[0]

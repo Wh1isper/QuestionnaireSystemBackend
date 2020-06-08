@@ -16,6 +16,13 @@ class BaseHandler(RequestHandler):
         self.MISSING_DATA = 100
         self.engine = None
         self.XSRF_NAME = '_xsrf'
+        # 状态编码 枚举类太难用了
+        self.USER_STATE_NORMAL = 0
+        self.USER_STATE_BAN = 1
+        self.Q_STATE_UNPUBLISH = 0
+        self.Q_STATE_PUBLISHED = 1
+        self.Q_STATE_INACTIVATE = 2
+        self.Q_STATE_BAN = 3
 
     def get_current_user(self) -> Any:
         return int(self.get_secure_cookie('user'))
@@ -93,8 +100,6 @@ class BaseHandler(RequestHandler):
                                         .where(QuestionNaireInfoTable.c.QI_ID == q_id))
             questionnaire_info = await result.fetchone()
         return questionnaire_info.QI_State
-
-
 
 
 def authenticated(method):
