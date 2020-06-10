@@ -101,8 +101,8 @@ class AdminGetUserList(AdminBaseHandler):
                 "email": user_info.U_Email,
                 "state": user_info.U_State,
             }
-            ret_list.append(json.dumps(user_module))
-        self.write(str(ret_list))
+            ret_list.append(user_module)
+        self.write(json.dumps(ret_list))
 
 
 class AdminGetQuestionnaireList(AdminBaseHandler):
@@ -149,8 +149,8 @@ class AdminGetQuestionnaireList(AdminBaseHandler):
             u_id_to_u_name_map[user_info.U_ID] = user_info.U_Name
         for ques_info in ques_info_list:
             ques_info['user_name'] = u_id_to_u_name_map[ques_info['user_ID']]
-            ret_list.append(json.dumps(ques_info))
-        self.write(str(ret_list))
+            ret_list.append(ques_info)
+        self.write(json.dumps(ret_list))
 
 
 from config import *

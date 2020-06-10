@@ -29,8 +29,8 @@ class UserQuestionnaireListHandler(BaseHandler):
                 "Q_deadline_date": time.mktime(questionnaire_info.QI_Deadline_Date.timetuple()),
                 "state": questionnaire_info.QI_State,
             }
-            ret_list.append(json.dumps(info_module))
-        self.write(str(ret_list))
+            ret_list.append(info_module)
+        self.write(json.dumps(ret_list))
 
 
 default_handlers = [
