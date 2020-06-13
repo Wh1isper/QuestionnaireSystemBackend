@@ -1,8 +1,14 @@
-DEBUG = False  # 若需测试，建议不要在这里修改，见test文件夹下单元测试实现
+# 服务器配置
+PORT = 8888
+DEBUG = True  # 需要http请求测试时开启 显示DEBUG信息
+UNITTEST = False  # 单元测试时请在单元测试内设置
 ADMIN_ACOUNT = 'admin'
-ADMIN_PASSWORD = '2c4996fe9684b85f228d38115211fbb671d4005bbeb304dfa522c6026ffba484'  # password12345 由encrypt.password_encrypt生成
+ADMIN_PASSWORD = 'c214ab5d94c0a6655a8e890af8e4bb28966c96d7b627c01db2033d5ad255355c'  # password12345 由encrypt.password_encrypt生成
+# cookie过期时间
+CHECK_CODE_EXPIRE_TIME = 60 * 10  # 验证码过期时间10min
+USER_AUTH_EXPIRE_DAY = 1  # 用户认证一天失效
 # 密码加盐
-PWD_SAULT = "this is not a password sault"
+PWD_SALT = "this is not a password salt"
 # cookie加盐
 COOKIE_SECRET = "this is not a secret cookie"
 # 验证码配置 check_code_config

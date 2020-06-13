@@ -156,3 +156,4 @@ gen
 *.iml
 out
 gen
+db_config.py

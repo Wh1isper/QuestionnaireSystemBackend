@@ -164,6 +164,11 @@ AnswerOptionTable = Table('answerOption', Meta,
                           Column("AO_Content", VARCHAR(140)),
                           )
 
+AnswerRecorderTable = Table('answerRecord', Meta,
+                            Column("QI_ID", BigInteger, ForeignKey("quesNaireInfo.QI_ID"), primary_key=True),
+                            Column("Count", BigInteger),
+                            )
+
 if __name__ == '__main__':
     # 测试映射类能正常初始化
     UserInfo()
@@ -193,7 +198,8 @@ if __name__ == '__main__':
                   QuestionNaireQuestionTable,
                   QuestionNaireOptionTable,
                   QuestionNaireTempTable,
-                  AnswerOptionTable]:
+                  AnswerOptionTable,
+                  AnswerRecorderTable]:
             result = conn.execute(i.select())
             try:
                 print(result.fetchall())

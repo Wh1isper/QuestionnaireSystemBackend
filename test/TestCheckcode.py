@@ -3,7 +3,7 @@ import unittest
 from test.BaseAsyncHTTPTestCase import BaseAsyncHTTPTestCase
 import json
 import config
-config.DEBUG = True
+config.UNITTEST = True
 
 
 class TestCheckcodeHandler(BaseAsyncHTTPTestCase):
