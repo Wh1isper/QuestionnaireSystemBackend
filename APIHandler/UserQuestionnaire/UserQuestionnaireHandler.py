@@ -25,8 +25,8 @@ class UserQuestionnaireListHandler(BaseHandler):
             info_module = {
                 "Q_ID": questionnaire_info.QI_ID,
                 "Q_Name": questionnaire_info.QI_Name,
-                "Q_creat_date": time.mktime(questionnaire_info.QI_Creat_Date.timetuple()),
-                "Q_deadline_date": time.mktime(questionnaire_info.QI_Deadline_Date.timetuple()),
+                "Q_creat_date": self.datetime_to_timestamp(questionnaire_info.QI_Creat_Date),
+                "Q_deadline_date": self.datetime_to_timestamp(questionnaire_info.QI_Deadline_Date),
                 "state": questionnaire_info.QI_State,
             }
             ret_list.append(info_module)

@@ -45,7 +45,7 @@ class QuestionnaireSaveHandler(QuestionnaireBaseHandler):
 
 
 class QuestionnaireContentHandler(QuestionnaireBaseHandler):
-    @authenticated
+    @xsrf
     async def get(self, *args, **kwargs):
         # 拉取问卷内容，直接从暂存的信息中拉取
         # 接口约定：https://github.com/Wh1isper/QuestionnaireSystemDoc/blob/master/%E6%8E%A5%E5%8F%A3%E5%AE%9A%E4%B9%89/%E6%8E%A5%E5%8F%A3%E8%AE%BE%E8%AE%A1-2020.05.17-V1.0.md#%E9%97%AE%E5%8D%B7%E5%86%85%E5%AE%B9%E8%8E%B7%E5%8F%96api
