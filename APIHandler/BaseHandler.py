@@ -26,7 +26,8 @@ class BaseHandler(RequestHandler):
         self.Q_STATE_BAN = 3
 
     def get_current_user(self) -> Any:
-        return int(self.get_secure_cookie('user'))
+        user = self.get_secure_cookie('user')
+        return int(user) if user else None
 
     def get_json_data(self) -> dict or None:
         try:

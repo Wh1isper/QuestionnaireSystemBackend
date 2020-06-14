@@ -20,12 +20,13 @@ class QuestionnaireInfoHandler(QuestionnaireBaseHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if not q_id:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if await self._not_publish(q_id):
-            # 没有发布且不是拥有者：拒绝访问
-            return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
-        if await self.is_questionnaire_be_banned(q_id) and not self.is_current_user_admin():
-            # 被删除/禁用且非管理员：拒绝访问
-            return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
+        if not self.is_current_user_admin():
+            if await self._not_publish(q_id):
+                # 没有发布且不是拥有者：拒绝访问
+                return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
+            if await self.is_questionnaire_be_banned(q_id):
+                # 被删除/禁用：拒绝访问
+                return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
         questionnaire_info = await self.get_questionnaire_info(q_id)
         self.write(questionnaire_info)
 

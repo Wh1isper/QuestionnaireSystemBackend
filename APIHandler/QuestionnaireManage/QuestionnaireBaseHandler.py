@@ -21,7 +21,7 @@ class QuestionnaireBaseHandler(BaseHandler):
             result = await conn.execute(QuestionNaireTempTable.select()
                                         .where(QuestionNaireTempTable.c.QI_ID == q_id))
             questionnaire_temp = await result.fetchone()
-        return questionnaire_temp.Q_Content
+        return questionnaire_temp.Q_Content if questionnaire_temp else None
 
     async def _valid_questionnaire_state(self, q_id: int, expect_state: int) -> bool:
         # 验证问卷状态
