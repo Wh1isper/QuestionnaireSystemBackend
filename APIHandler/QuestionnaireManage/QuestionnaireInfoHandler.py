@@ -1,6 +1,6 @@
 from QuestionnaireBaseHandler import QuestionnaireBaseHandler
 from BaseHandler import xsrf
-from orm import QuestionNaireInfoTable, UserInfoTable
+from orm import QuestionNaireInfoTable, UserInfoTable, AnswerRecorderTable
 import time
 
 
@@ -46,6 +46,9 @@ class QuestionnaireInfoHandler(QuestionnaireBaseHandler):
             result = await conn.execute(UserInfoTable.select().where(UserInfoTable.c.U_ID == questionnaire_info.U_ID))
             user_info = await result.fetchone()
             u_name = user_info.U_Name
+            result = await conn.execute(AnswerRecorderTable.select().where(AnswerRecorderTable.c.QI_ID==q_id))
+            record = await result.fetchone()
+            count = record.Count
 
         questionnaire_module = {
             'Q_Name': questionnaire_info.QI_Name,
@@ -53,6 +56,7 @@ class QuestionnaireInfoHandler(QuestionnaireBaseHandler):
             'Q_Deadline_Date': self.datetime_to_timestamp(questionnaire_info.QI_Deadline_Date),
             'U_Name': u_name,
             'state': questionnaire_info.QI_State,
+            'count': count
         }
         return questionnaire_module
 
