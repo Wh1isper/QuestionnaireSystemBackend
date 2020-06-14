@@ -159,4 +159,4 @@ gen
 db_config.py
 
 #object
-./Temp/*
+Temp/*
