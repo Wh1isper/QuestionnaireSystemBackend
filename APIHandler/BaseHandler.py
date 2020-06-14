@@ -6,7 +6,7 @@ from typing import Any
 import functools
 from typing import Text
 import re
-from config import PASSWORD_REG, DEBUG, UNITTEST
+from config import PASSWORD_REG, DEBUG, UNITTEST, XSRF_VALID
 from orm import *
 import time
 
@@ -121,10 +121,10 @@ def authenticated(method):
 
 
 def xsrf(method):
-    # xsrf验证
+    # 假装是xsrf验证
     @functools.wraps(method)
     async def wrapper(self: BaseHandler, *args, **kwargs):
-        if not UNITTEST and not self.get_cookie(self.XSRF_NAME):
+        if XSRF_VALID and not UNITTEST and not self.get_cookie(self.XSRF_NAME):
             return self.raise_HTTP_error(403)
         return await method(self, *args, **kwargs)
 
