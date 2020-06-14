@@ -47,7 +47,7 @@ class QuestionnaireInfoHandler(QuestionnaireBaseHandler):
             u_name = user_info.U_Name
 
         questionnaire_module = {
-            'Q_Name': questionnaire_info.Q_Name,
+            'Q_Name': questionnaire_info.QI_Name,
             'Q_Create_Date': self.datetime_to_timestamp(questionnaire_info.QI_Creat_Date),
             'Q_Deadline_Date': self.datetime_to_timestamp(questionnaire_info.QI_Deadline_Date),
             'U_Name': u_name,

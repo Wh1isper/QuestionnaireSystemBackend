@@ -159,6 +159,14 @@ class TestQuestionnaireDelete(BaseAsyncHTTPTestCase):
         self.assertEqual(response.code, 403)
 
 
+class TestQuestionnaireInfo(BaseAsyncHTTPTestCase):
+    def test_questionnaire_Info(self):
+        test_url = self.get_url(r"/api/v1/questionnaireInfo/?Q_ID=6")
+        response = self.fetch(test_url, method='GET', headers=self.login())
+        print(response.body)
+        self.assertEqual(response.code, 200)
+
+
 class TestQuestionnaireGet(BaseAsyncHTTPTestCase):
     def test_questionnaire_get(self):
         test_url = self.get_url(r"/api/v1/questionnaireGet/?Q_ID=6")
