@@ -6,7 +6,7 @@ from typing import Any
 import functools
 from typing import Text
 import re
-from config import PASSWORD_REG, DEBUG, UNITTEST, XSRF_VALID
+from config import PASSWORD_REG, DEBUG, UNITTEST, XSRF_VALID,PERFORMANCE_TEST
 from orm import *
 import time
 
@@ -113,7 +113,7 @@ def authenticated(method):
     # 参考tornado.web.authenticated
     @functools.wraps(method)
     async def wrapper(self: BaseHandler, *args, **kwargs):
-        if not self.current_user:
+        if not PERFORMANCE_TEST and not self.current_user:
             return self.raise_HTTP_error(401)
         return await method(self, *args, **kwargs)
 
