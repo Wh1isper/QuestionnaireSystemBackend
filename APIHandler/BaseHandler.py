@@ -60,16 +60,16 @@ class BaseHandler(RequestHandler):
         return self.engine
 
     def log(self) -> None:
-
-        log_dict = {
-            'ip': self.request.remote_ip,
-            'state': self.get_status(),
-            'method': self.request.method,
-            'Handler': self.__class__.__name__,
-            'cookie': self.request.headers.get('Cookie'),
-            'body': str(self.request.body, encoding='utf-8'),
-        }
-        print(json.dumps(log_dict))
+        if DEBUG:
+            log_dict = {
+                'ip': self.request.remote_ip,
+                'state': self.get_status(),
+                'method': self.request.method,
+                'Handler': self.__class__.__name__,
+                'cookie': self.request.headers.get('Cookie'),
+                'body': str(self.request.body, encoding='utf-8'),
+            }
+            print(json.dumps(log_dict))
 
     def on_finish(self) -> None:
         if self.log_hook:
