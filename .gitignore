@@ -157,3 +157,6 @@ gen
 out
 gen
 db_config.py
+
+#object
+./Temp/*
