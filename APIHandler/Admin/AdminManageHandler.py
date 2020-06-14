@@ -86,9 +86,9 @@ class AdminGetUserList(AdminBaseHandler):
         try:
             offset = int(self.get_query_argument('offset', "0"))
         except ValueError:
-            return self.raise_HTTP_error(403,self.MISSING_DATA)
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         if offset < 0:
-            return self.raise_HTTP_error(403,self.MISSING_DATA)
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
 
         ret_list = []
         async with engine.acquire() as conn:
@@ -134,8 +134,8 @@ class AdminGetQuestionnaireList(AdminBaseHandler):
                 'Q_ID': questionnaire_info.QI_ID,
                 'Q_name': questionnaire_info.QI_Name,
                 'user_ID': questionnaire_info.U_ID,
-                'Q_creat_date': time.mktime(questionnaire_info.QI_Creat_Date.timetuple()),
-                'Q_deadline_date': time.mktime(questionnaire_info.QI_Deadline_Date.timetuple()),
+                'Q_creat_date': self.datetime_to_timestamp(questionnaire_info.QI_Creat_Date),
+                'Q_deadline_date': self.datetime_to_timestamp(questionnaire_info.QI_Deadline_Date),
                 'state': questionnaire_info.QI_State,
             }
             u_id_list.append(questionnaire_info.U_ID)

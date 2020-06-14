@@ -8,6 +8,7 @@ from typing import Text
 import re
 from config import PASSWORD_REG, DEBUG, UNITTEST
 from orm import *
+import time
 
 
 class BaseHandler(RequestHandler):
@@ -91,8 +92,7 @@ class BaseHandler(RequestHandler):
         return bool(questionnaire_info)
 
     async def get_questionnaire_state(self, q_id: int) -> int:
-        # 返回问卷状态
-        # 仅问卷拥有者可用
+        # 返回问卷状态,仅问卷拥有者可用
         engine = await self.get_engine()
         async with engine.acquire() as conn:
             result = await conn.execute(QuestionNaireInfoTable.select()
@@ -100,6 +100,9 @@ class BaseHandler(RequestHandler):
                                         .where(QuestionNaireInfoTable.c.QI_ID == q_id))
             questionnaire_info = await result.fetchone()
         return questionnaire_info.QI_State
+
+    def datetime_to_timestamp(self, date_time):
+        return time.mktime(date_time.timetuple())
 
 
 def authenticated(method):
