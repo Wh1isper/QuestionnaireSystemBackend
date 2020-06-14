@@ -98,7 +98,7 @@ class QuestionnaireResultHandler(QuestionnaireBaseHandler):
             return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
         filename = await self.get_all_result(q_id)
         self.set_header("Content-Type", "text/csv")
-        self.set_header('Content-Disposition', 'attachment; filename=' + 'Result')
+        self.set_header('Content-Disposition', 'attachment; filename=' + 'Result.csv')
         with open(filename, 'rb') as f:
             while True:
                 data = f.read(2048)
