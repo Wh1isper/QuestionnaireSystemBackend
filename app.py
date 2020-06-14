@@ -14,6 +14,7 @@ import tornado.ioloop
 import tornado.web
 from config import *
 
+
 def load_handlers(name):
     """Load the (URL pattern, handler) tuples for each component."""
     mod = __import__(name, fromlist=['default_handlers'])
@@ -23,6 +24,7 @@ def load_handlers(name):
 class test_handler(tornado.web.RequestHandler):
     def get(self):
         self.write(self.get_query_argument("test"))
+
 
 def make_app():
     settings = {
@@ -52,7 +54,7 @@ def make_app():
     for handler in handlers:
         url = handler[0]
         handler_class = handler[1]
-        print(url, '----->',handler_class)
+        print(url, '----->', handler_class)
 
     return tornado.web.Application(handlers, **settings)
 

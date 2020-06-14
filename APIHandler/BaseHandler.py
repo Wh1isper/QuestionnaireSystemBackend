@@ -102,7 +102,10 @@ class BaseHandler(RequestHandler):
         return questionnaire_info.QI_State
 
     def datetime_to_timestamp(self, date_time):
-        return time.mktime(date_time.timetuple())
+        if date_time:
+            return time.mktime(date_time.timetuple())
+        else:
+            return None
 
 
 def authenticated(method):
