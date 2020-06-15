@@ -6,7 +6,7 @@ from typing import Any
 import functools
 from typing import Text
 import re
-from config import PASSWORD_REG, DEBUG, UNITTEST
+from config import PASSWORD_REG, DEBUG, UNITTEST, XSRF_VALID
 from orm import *
 import time
 
@@ -26,7 +26,8 @@ class BaseHandler(RequestHandler):
         self.Q_STATE_BAN = 3
 
     def get_current_user(self) -> Any:
-        return int(self.get_secure_cookie('user'))
+        user = self.get_secure_cookie('user')
+        return int(user) if user else None
 
     def get_json_data(self) -> dict or None:
         try:
@@ -60,16 +61,16 @@ class BaseHandler(RequestHandler):
         return self.engine
 
     def log(self) -> None:
-
-        log_dict = {
-            'ip': self.request.remote_ip,
-            'state': self.get_status(),
-            'method': self.request.method,
-            'Handler': self.__class__.__name__,
-            'cookie': self.request.headers.get('Cookie'),
-            'body': str(self.request.body, encoding='utf-8'),
-        }
-        print(json.dumps(log_dict))
+        if DEBUG:
+            log_dict = {
+                'ip': self.request.remote_ip,
+                'state': self.get_status(),
+                'method': self.request.method,
+                'Handler': self.__class__.__name__,
+                'cookie': self.request.headers.get('Cookie'),
+                'body': str(self.request.body, encoding='utf-8'),
+            }
+            print(json.dumps(log_dict))
 
     def on_finish(self) -> None:
         if self.log_hook:
@@ -102,7 +103,10 @@ class BaseHandler(RequestHandler):
         return questionnaire_info.QI_State
 
     def datetime_to_timestamp(self, date_time):
-        return time.mktime(date_time.timetuple())
+        if date_time:
+            return time.mktime(date_time.timetuple())
+        else:
+            return None
 
 
 def authenticated(method):
@@ -117,10 +121,10 @@ def authenticated(method):
 
 
 def xsrf(method):
-    # xsrf验证
+    # 假装是xsrf验证
     @functools.wraps(method)
     async def wrapper(self: BaseHandler, *args, **kwargs):
-        if not UNITTEST and not self.get_cookie(self.XSRF_NAME):
+        if XSRF_VALID and not UNITTEST and not self.get_cookie(self.XSRF_NAME):
             return self.raise_HTTP_error(403)
         return await method(self, *args, **kwargs)
 

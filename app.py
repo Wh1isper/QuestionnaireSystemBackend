@@ -14,15 +14,17 @@ import tornado.ioloop
 import tornado.web
 from config import *
 
+
 def load_handlers(name):
     """Load the (URL pattern, handler) tuples for each component."""
     mod = __import__(name, fromlist=['default_handlers'])
     return mod.default_handlers
 
 
-class test_handler(tornado.web.RequestHandler):
+class indexHandler(tornado.web.RequestHandler):
     def get(self):
-        self.write(self.get_query_argument("test"))
+        self.redirect("https://github.com/Wh1isper/QuestionnaireSystemBackend")
+
 
 def make_app():
     settings = {
@@ -33,7 +35,7 @@ def make_app():
     # log info
     print("...init Route")
 
-    handlers = [(r'/', test_handler), ]
+    handlers = [(r'/', indexHandler), ]
     handlers.extend(load_handlers('APIHandler.CheckcodeHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.LoginHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.RegisterHandler'))
@@ -52,7 +54,7 @@ def make_app():
     for handler in handlers:
         url = handler[0]
         handler_class = handler[1]
-        print(url, '----->',handler_class)
+        print(url, '----->', handler_class)
 
     return tornado.web.Application(handlers, **settings)
 

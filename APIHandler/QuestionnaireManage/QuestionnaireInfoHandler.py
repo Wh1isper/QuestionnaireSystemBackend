@@ -1,6 +1,6 @@
 from QuestionnaireBaseHandler import QuestionnaireBaseHandler
 from BaseHandler import xsrf
-from orm import QuestionNaireInfoTable, UserInfoTable
+from orm import QuestionNaireInfoTable, UserInfoTable, AnswerRecorderTable
 import time
 
 
@@ -20,12 +20,13 @@ class QuestionnaireInfoHandler(QuestionnaireBaseHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if not q_id:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        if await self._not_publish(q_id):
-            # 没有发布且不是拥有者：拒绝访问
-            return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
-        if await self.is_questionnaire_be_banned(q_id) and not self.is_current_user_admin():
-            # 被删除/禁用且非管理员：拒绝访问
-            return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
+        if not self.is_current_user_admin():
+            if await self._not_publish(q_id):
+                # 没有发布且不是拥有者：拒绝访问
+                return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
+            if await self.is_questionnaire_be_banned(q_id):
+                # 被删除/禁用：拒绝访问
+                return self.raise_HTTP_error(403, self.QUESTIONNAIRE_NOT_FOUND)
         questionnaire_info = await self.get_questionnaire_info(q_id)
         self.write(questionnaire_info)
 
@@ -45,6 +46,9 @@ class QuestionnaireInfoHandler(QuestionnaireBaseHandler):
             result = await conn.execute(UserInfoTable.select().where(UserInfoTable.c.U_ID == questionnaire_info.U_ID))
             user_info = await result.fetchone()
             u_name = user_info.U_Name
+            result = await conn.execute(AnswerRecorderTable.select().where(AnswerRecorderTable.c.QI_ID==q_id))
+            record = await result.fetchone()
+            count = record.Count
 
         questionnaire_module = {
             'Q_Name': questionnaire_info.QI_Name,
@@ -52,6 +56,7 @@ class QuestionnaireInfoHandler(QuestionnaireBaseHandler):
             'Q_Deadline_Date': self.datetime_to_timestamp(questionnaire_info.QI_Deadline_Date),
             'U_Name': u_name,
             'state': questionnaire_info.QI_State,
+            'count': count
         }
         return questionnaire_module
 
