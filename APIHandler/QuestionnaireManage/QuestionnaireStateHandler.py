@@ -57,7 +57,7 @@ class QuestionnairePublishHandler(QuestionnaireBaseHandler):
             await conn.execute(
                 QuestionNaireInfoTable.update()
                     .where(QuestionNaireInfoTable.c.QI_ID == questionnaire_module.get('Q_ID'))
-                    .values(QI_Deadline_Date=questionnaire_module.get('end_date'),QI_State=self.Q_STATE_PUBLISHED))
+                    .values(QI_Deadline_Date=questionnaire_module.get('end_date'), QI_State=self.Q_STATE_PUBLISHED))
             await conn._commit_impl()
 
     async def presistent_questionnaire(self, questionnaire_module: dict) -> bool or None:
@@ -115,9 +115,12 @@ class QuestionnairePublishHandler(QuestionnaireBaseHandler):
 
 
 class QuestionaireChangeStateHandler(QuestionnaireBaseHandler):
-    def initialize(self, state):
+    def initialize(self):
         super(QuestionaireChangeStateHandler, self).initialize()
         self.QUESTIONNAIRE_NOT_FOUND = 1
+        self.STATE = None
+
+    def set_state(self, state: int) -> None:
         self.STATE = state
 
     @xsrf
@@ -127,6 +130,8 @@ class QuestionaireChangeStateHandler(QuestionnaireBaseHandler):
         # 1. 验证问卷所属权
         # 2. 修改后问卷状态码不得变小（不得倒退）
         # 3. 修改问卷信息
+        if not self.STATE:
+            raise NotImplementedError
         json_data = self.get_json_data()
         if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
@@ -152,12 +157,14 @@ class QuestionaireChangeStateHandler(QuestionnaireBaseHandler):
 
 class QuestionnaireDeleteHandler(QuestionaireChangeStateHandler):
     def initialize(self):
-        super(QuestionnaireDeleteHandler, self).initialize(self.Q_STATE_BAN)
+        super(QuestionnaireDeleteHandler, self).initialize()
+        self.set_state(self.Q_STATE_BAN)
 
 
 class QuestionnaireInactiveHandler(QuestionaireChangeStateHandler):
     def initialize(self):
-        super(QuestionnaireInactiveHandler, self).initialize(self.Q_STATE_INACTIVATE)
+        super(QuestionnaireInactiveHandler, self).initialize()
+        self.set_state(self.Q_STATE_INACTIVATE)
 
 
 from config import *
