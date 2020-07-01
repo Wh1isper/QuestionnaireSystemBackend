@@ -35,6 +35,7 @@ def make_app():
     # log info
     print("...init Route")
 
+    # 注册Handler，按照文件中的 default_handlers 注册
     handlers = [(r'/', IndexHandler), ]
     handlers.extend(load_handlers('APIHandler.CheckcodeHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.LoginHandler'))
