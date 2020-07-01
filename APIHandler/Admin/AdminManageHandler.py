@@ -24,9 +24,9 @@ class AdminUserStateChange(AdminBaseHandler):
         if not op_type in [0, 1]:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if op_type == 0:
-            state = 0
+            state = self.USER_STATE_NORMAL
         elif op_type == 1:
-            state = 1
+            state = self.USER_STATE_BAN
         # 更新状态
         await self.update_state(email, state)
 
@@ -58,9 +58,9 @@ class AdminQuestionnaireStateChange(AdminBaseHandler):
         if not op_type in [0, 1]:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         if op_type == 0:
-            state = 0
+            state = self.Q_STATE_INACTIVATE
         elif op_type == 1:
-            state = 3
+            state = self.Q_STATE_BAN
         # 更新状态
         await self.update_state(Q_ID, state)
 
