@@ -17,6 +17,8 @@ class UserInfoHandler(BaseHandler):
             result = await conn.execute(UserInfoTable.select()
                                         .where(UserInfoTable.c.U_ID == self.current_user))
             user_info = await result.fetchone()
+        if not user_info:
+            self.raise_HTTP_error(401)
         birth = self.datetime_to_timestamp(user_info.U_Birth)
         user_module = {
             "email": user_info.U_Email,
