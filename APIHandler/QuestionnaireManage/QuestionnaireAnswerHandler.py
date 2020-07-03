@@ -116,11 +116,11 @@ class QuestionnaireResultHandler(QuestionnaireBaseHandler):
                                         .where(AnswerOptionTable.c.QI_ID == q_id))
             options = await result.fetchall()
 
-        csv_headers = ['题号', '题目', '选项号', '选项', '选择/回答']
+        csv_headers = ['题号', '题目', '选项号', '选项', '回答']
         file_name = './Temp/' + str(q_id) + '.csv'
         if os.path.exists(file_name):
             return file_name
-        with open(file_name, 'w+', newline='', encoding='utf-8') as f:
+        with open(file_name, 'w+', newline='', encoding='utf_8_sig') as f:
             writer = csv.DictWriter(f, csv_headers)
             writer.writeheader()
             for option in options:
@@ -129,13 +129,13 @@ class QuestionnaireResultHandler(QuestionnaireBaseHandler):
                 option_id = option.QO_ID
                 option_content = await self.get_option_content(q_id, question_id, option_id)
                 question_type = option.QO_Type
-                content = '是' if question_type == 0 or question_type == 1 else option.AO_Content
+                content = '-' if question_type == 0 or question_type == 1 else option.AO_Content
                 writer.writerow({
                     '题号': question_id,
                     '题目': question_content,
                     '选项号': option_id,
                     '选项': option_content,
-                    '选择/回答': content,
+                    '回答': content,
                 })
         return file_name
 
@@ -175,23 +175,24 @@ class QuestionnaireStatisticsHandler(QuestionnaireBaseHandler):
                 result = await conn.execute(AnswerOptionTable.select()
                                             .where(AnswerOptionTable.c.QI_ID == q_id)
                                             .where(AnswerOptionTable.c.QQ_ID == qq_id)
+                                            .distinct()
+                                            .with_only_columns([AnswerOptionTable.c.QO_ID])
                                             )
                 qo_ids = await result.fetchall()
             for qo_id in qo_ids:
                 qo_id = qo_id.QO_ID
                 option_content = await self.get_option_content(q_id, qq_id, qo_id)
                 count = await self.get_option_count(q_id, qq_id, qo_id)
-                option_list.append(json.dumps({
+                option_list.append({
                     "option_content": option_content,
                     "option_count": count
                 })
-                )
             question_module = {
                 "question_content": question_content,
                 "option": option_list
             }
-            return_list.append(json.dumps(question_module))
-        self.write(str(return_list))
+            return_list.append(question_module)
+        self.write(json.dumps(return_list))
 
 
 from config import *
