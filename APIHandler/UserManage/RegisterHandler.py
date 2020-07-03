@@ -27,7 +27,8 @@ class RegisterHandler(BaseHandler):
             return self.raise_HTTP_error(403, self.MISSING_DATA)
         # 参数读取
         try:
-            email = json_data.get('email')
+            email: Text = json_data.get('email')
+            email = email.lower()
             username = json_data.get('usrname')
             birth = datetime.datetime.fromtimestamp(int(json_data.get('birth')))
             pwd = json_data.get('pwd')

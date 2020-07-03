@@ -22,7 +22,11 @@ class LoginHandler(BaseHandler):
         json_data = self.get_json_data()
         if not json_data:
             return self.raise_HTTP_error(403, self.MISSING_DATA)
-        email = json_data.get('email')
+        email: Text = json_data.get('email')
+        try:
+            email = email.lower()
+        except Exception as e:
+            return self.raise_HTTP_error(403, self.MISSING_DATA)
         pwd = json_data.get('pwd')
         check_code = json_data.get('check_code')
         # 必填项确认
