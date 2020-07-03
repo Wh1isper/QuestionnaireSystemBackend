@@ -10,6 +10,21 @@
 
 前端：https://github.com/JellyBeanXiewh/QuestionnaireSystemFrontend
 
+
+
+## 分支说明
+
+
+
+目前拥有四个分支：
+
+1. master分支：通过测试的代码将合入这里，始终保持windows/linux兼容
+2. dev分支：windows/linux兼容的开发平台，用以主要功能的开发和测试
+3. linuxdev分支：linux平台特供，针对linux平台进行优化，并添加redis缓存等功能（仍在规划中）
+4. PerformanceTesting：专为性能测试开辟的分支，定期追赶主分支的进度
+
+
+
 ## 安装流程
 
 ### 1. 安装依赖包
@@ -31,3 +46,16 @@ pip install -r requirements.txt
 # !!!不要恶意使用里面公开的邮件账号
 # !!!你应该注册一个新的
 
+
+
+## 维护说明
+
+此项目在2020年7月份之后进入随缘维护模式……
+
+如果你对此项目有兴趣，欢迎继续维护！
+
+## todo
+
+1. 日志功能：更详细的日志记录
+2. linuxdev分支的额外功能添加
+3. 数据库功能拓展

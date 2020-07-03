@@ -21,7 +21,7 @@ def load_handlers(name):
     return mod.default_handlers
 
 
-class indexHandler(tornado.web.RequestHandler):
+class IndexHandler(tornado.web.RequestHandler):
     def get(self):
         self.redirect("https://github.com/Wh1isper/QuestionnaireSystemBackend")
 
@@ -35,7 +35,8 @@ def make_app():
     # log info
     print("...init Route")
 
-    handlers = [(r'/', indexHandler), ]
+    # 注册Handler，按照文件中的 default_handlers 注册
+    handlers = [(r'/', IndexHandler), ]
     handlers.extend(load_handlers('APIHandler.CheckcodeHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.LoginHandler'))
     handlers.extend(load_handlers('APIHandler.UserManage.RegisterHandler'))
